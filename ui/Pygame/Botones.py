@@ -1,11 +1,25 @@
 # =============================================================================
-# CLASE BOTON
+# CLASE BOTON Y CONFIGURACIÓN
 # =============================================================================
 # Clase para crear y gestionar botones interactivos en Pygame
 # =============================================================================
 
 import pygame
 from .recursos import cargar_imagen
+
+# =============================================================================
+# CONFIGURACIÓN ESTÁNDAR DE BOTONES
+# =============================================================================
+BOTON_ANCHO_GRANDE = 345
+BOTON_ALTO_GRANDE = 200
+BOTON_ESPACIADO_GRANDE = 100
+BOTON_Y_INICIAL_GRANDE = 160
+
+BOTON_ANCHO_PEQUENO = 290
+BOTON_ALTO_PEQUENO = 168
+BOTON_ESPACIADO_PEQUENO = 80
+
+BOTON_COLOR_TEXTO = (255, 255, 255)
 
 
 class Boton:
@@ -105,3 +119,82 @@ class Boton:
             activo (bool): True si el botón debe estar activo
         """
         self.activo = activo
+
+
+# =============================================================================
+# FUNCIONES HELPER PARA CREAR BOTONES
+# =============================================================================
+
+def crear_boton_menu(texto: str, centro_x: int, indice: int, fuente: pygame.font.Font, tamano: str = "grande") -> Boton:
+    """
+    Crea un botón con el estilo del menú principal.
+    
+    Parámetros:
+        texto (str): Texto del botón
+        centro_x (int): Posición X del centro de la pantalla
+        indice (int): Índice del botón (0, 1, 2, 3, 4...)
+        fuente (pygame.font.Font): Fuente para el texto
+        tamano (str): "grande" o "pequeno"
+    
+    Retorna:
+        Boton: Botón configurado
+    
+    Ejemplo:
+        boton_jugar = crear_boton_menu("Jugar", 400, 0, fuente)
+        boton_salir = crear_boton_menu("Salir", 400, 1, fuente, "pequeno")
+    """
+    if tamano == "grande":
+        ancho = BOTON_ANCHO_GRANDE
+        alto = BOTON_ALTO_GRANDE
+        espaciado = BOTON_ESPACIADO_GRANDE
+        y_inicial = BOTON_Y_INICIAL_GRANDE
+    else:
+        ancho = BOTON_ANCHO_PEQUENO
+        alto = BOTON_ALTO_PEQUENO
+        espaciado = BOTON_ESPACIADO_PEQUENO
+        y_inicial = 350  # Posición inicial para botones pequeños
+    
+    x = centro_x - (ancho // 2)
+    y = y_inicial + (indice * espaciado)
+    
+    return Boton(texto, x, y, ancho, alto, fuente, BOTON_COLOR_TEXTO)
+
+
+def crear_botones_centrados(textos: list, centro_x: int, fuente: pygame.font.Font,
+                            tamano: str = "pequeno", y_inicial: int = None) -> list:
+    """
+    Crea múltiples botones centrados verticalmente.
+    
+    Parámetros:
+        textos (list): Lista de textos para los botones
+        centro_x (int): Posición X del centro
+        fuente (pygame.font.Font): Fuente para el texto
+        tamano (str): "grande" o "pequeno"
+        y_inicial (int): Posición Y inicial (opcional)
+    
+    Retorna:
+        list: Lista de botones creados
+    
+    Ejemplo:
+        botones = crear_botones_centrados(["Reintentar", "Menú"], 400, fuente)
+    """
+    botones = []
+    
+    if tamano == "grande":
+        ancho = BOTON_ANCHO_GRANDE
+        alto = BOTON_ALTO_GRANDE
+        espaciado = BOTON_ESPACIADO_GRANDE
+        y_start = y_inicial if y_inicial else BOTON_Y_INICIAL_GRANDE
+    else:
+        ancho = BOTON_ANCHO_PEQUENO
+        alto = BOTON_ALTO_PEQUENO
+        espaciado = BOTON_ESPACIADO_PEQUENO
+        y_start = y_inicial if y_inicial else 350
+    
+    for i, texto in enumerate(textos):
+        x = centro_x - (ancho // 2)
+        y = y_start + (i * espaciado)
+        boton = Boton(texto, x, y, ancho, alto, fuente, BOTON_COLOR_TEXTO)
+        botones.append(boton)
+    
+    return botones

@@ -185,34 +185,17 @@ def obtener_ranking(archivo: str) -> list:
         for nombre in datos:
             stats = datos[nombre]
             
-            # Verificar si existe "puntajes" y tiene elementos
-            tiene_puntajes = False
-            for clave in stats:
-                if clave == "puntajes":
-                    tiene_puntajes = True
-                    break
-            
-            if tiene_puntajes and len(stats["puntajes"]) > 0:
+            # Verificar con 'in' en lugar de iterar
+            if "puntajes" in stats and len(stats["puntajes"]) > 0:
                 stats_puntajes = calcular_estadisticas_lista(stats["puntajes"])
                 
-                # Verificar si existe "porcentajes"
-                tiene_porcentajes = False
-                for clave in stats:
-                    if clave == "porcentajes":
-                        tiene_porcentajes = True
-                        break
-                
-                if tiene_porcentajes:
+                # Usar .get() con valores por defecto
+                if "porcentajes" in stats:
                     stats_porcentajes = calcular_estadisticas_lista(stats["porcentajes"])
                 else:
                     stats_porcentajes = {"mejor": 0, "promedio": 0}
                 
-                # Verificar si existe "intentos"
-                intentos = 0
-                for clave in stats:
-                    if clave == "intentos":
-                        intentos = stats["intentos"]
-                        break
+                intentos = stats.get("intentos", 0)
                 
                 ranking.append({
                     "nombre": nombre,
@@ -226,36 +209,22 @@ def obtener_ranking(archivo: str) -> list:
     return ordenar_ranking(ranking)
 
 
-# =============================================================================
-# ORDENAR_RANKING
-# =============================================================================
-# Descripción: Ordena el ranking por mejor puntaje (implementación manual)
-# 
-# Uso en Pygame: Se usa internamente para mostrar tabla ordenada
-#
-# Parámetros:
-#   - ranking (list): Lista de usuarios sin ordenar
-#
-# Retorna:
-#   - list: Lista ordenada por mejor puntaje (descendente)
-#
-# Ejemplo de uso:
-#   ranking_ordenado = ordenar_ranking(ranking)
-# =============================================================================
 def ordenar_ranking(ranking: list) -> list:
-    """Ordena el ranking por mejor puntaje."""
-    ordenado = []
-    for usuario in ranking:
-        insertado = False
-        nueva_lista_ordenada = []
-        i = 0
-        while i < len(ordenado):
-            if not insertado and usuario["mejor_puntaje"] > ordenado[i]["mejor_puntaje"]:
-                nueva_lista_ordenada.append(usuario)
-                insertado = True
-            nueva_lista_ordenada.append(ordenado[i])
-            i = i + 1
-        if not insertado:
-            nueva_lista_ordenada.append(usuario)
-        ordenado = nueva_lista_ordenada
-    return ordenado
+    """Ordena el ranking por mejor puntaje usando insertion sort optimizado."""
+    if len(ranking) <= 1:
+        return ranking
+    
+    # Insertion sort in-place - mucho más eficiente
+    for i in range(1, len(ranking)):
+        usuario_actual = ranking[i]
+        j = i - 1
+        
+        # Mover elementos menores una posición adelante
+        while j >= 0 and ranking[j]["mejor_puntaje"] < usuario_actual["mejor_puntaje"]:
+            ranking[j + 1] = ranking[j]
+            j -= 1
+        
+        # Insertar el usuario en su posición correcta
+        ranking[j + 1] = usuario_actual
+    
+    return ranking

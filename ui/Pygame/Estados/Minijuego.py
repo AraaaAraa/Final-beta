@@ -6,9 +6,10 @@
 
 import pygame
 from .base import BaseEstado
-from ..Botones import Boton
+from ..Botones import Boton, crear_botones_centrados
 from ..efectos import dibujar_degradado_vertical
 from ..recursos import cargar_imagen
+from config.constantes import ALTO, ANCHO
 from core.logica_minijuego import (
     inicializar_estado_minijuego,
     obtener_movimientos_validos,
@@ -56,28 +57,19 @@ class minijuego(BaseEstado):
         self.tamano_celda = 80
         self.margen = 5
         
-        # Botones para la pantalla de victoria
+        # Botones para la pantalla de victoria usando helper
         centro_x = self.screen_rect.centerx
-        self.boton_reintentar = Boton(
-            "Reintentar",
-            centro_x - 150,
-            350,
-            300,
-            60,
+        botones_lista = crear_botones_centrados(
+            ["Reintentar", "Menú Principal"],
+            centro_x,
             self.fuente_boton,
-            (255, 255, 255)
-        )
-        self.boton_menu = Boton(
-            "Menú Principal",
-            centro_x - 150,
-            430,
-            300,
-            60,
-            self.fuente_boton,
-            (255, 255, 255)
+            tamano="pequeno",
+            y_inicial=350
         )
         
-        self.botones = [self.boton_reintentar, self.boton_menu]
+        self.boton_reintentar = botones_lista[0]
+        self.boton_menu = botones_lista[1]
+        self.botones = botones_lista
     
     def startup(self, persist: dict):
         """
@@ -178,13 +170,15 @@ class minijuego(BaseEstado):
             
             # Si el juego terminó con victoria, verificar clics en botones
             if self.estado_juego and self.estado_juego["terminado"] and self.estado_juego["victoria"]:
-                if self.boton_reintentar.verificar_click(pos):
-                    # Reintentar
-                    self.estado_juego = inicializar_estado_minijuego()
-                    self.actualizar_movimientos_validos()
-                elif self.boton_menu.verificar_click(pos):
-                    # Volver al menú
-                    self.done = True
+                # Verificar en orden inverso
+                for boton in reversed(self.botones):
+                    if boton == self.boton_menu and boton.verificar_click(pos):
+                        self.done = True
+                        break
+                    elif boton == self.boton_reintentar and boton.verificar_click(pos):
+                        self.estado_juego = inicializar_estado_minijuego()
+                        self.actualizar_movimientos_validos()
+                        break
             # Si el juego no ha terminado, procesar clics en celdas
             elif not self.estado_juego["terminado"]:
                 # Calcular qué celda se clickeó
@@ -208,7 +202,12 @@ class minijuego(BaseEstado):
         if self.estado_juego and self.estado_juego["terminado"] and self.estado_juego["victoria"]:
             mouse_pos = pygame.mouse.get_pos()
             for boton in self.botones:
-                boton.actualizar_hover(mouse_pos)
+                boton.hover = False
+            
+            for boton in reversed(self.botones):
+                if boton.rect.collidepoint(mouse_pos):
+                    boton.hover = True
+                    break
     
     def draw(self, surface: pygame.Surface):
         """
@@ -302,7 +301,7 @@ class minijuego(BaseEstado):
     def dibujar_resultado(self, surface: pygame.Surface):
         """Dibuja el resultado del juego cuando se gana."""
         # Overlay semi-transparente
-        overlay = pygame.Surface((800, 600))
+        overlay = pygame.Surface((ANCHO, ALTO))
         overlay.set_alpha(200)
         overlay.fill((0, 0, 0))
         surface.blit(overlay, (0, 0))

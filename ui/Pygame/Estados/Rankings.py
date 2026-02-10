@@ -1,25 +1,24 @@
 # =============================================================================
 # ESTADO RANKINGS
 # =============================================================================
-# Pantalla que muestra el ranking personal del jugador y el ranking global
+# Pantalla que muestra los rankings de jugadores
 # =============================================================================
 
 import pygame
 from .base import BaseEstado
-from ..Botones import Boton
+from ..Botones import Boton, crear_botones_centrados
 from ..efectos import dibujar_degradado_vertical, dibujar_sombra_texto
 from ..recursos import cargar_imagen
-from data.repositorio_usuarios import obtener_usuario
-from data.archivos_json import cargar_json
-from config.constantes import RUTA_USUARIOS
+from models.usuario import obtener_ranking_global, obtener_estadisticas_usuario
 
 
 class rankings(BaseEstado):
     """
-    Estado de rankings del juego.
+    Estado de Rankings.
     
-    Muestra el ranking personal del jugador actual y el ranking global
-    de todos los jugadores.
+    Muestra dos tabs:
+    - Personal: Estadísticas del jugador actual
+    - Global: Top 10 de todos los jugadores
     """
     
     def __init__(self):
@@ -32,39 +31,34 @@ class rankings(BaseEstado):
         self.fondo = cargar_imagen("pared_egipcia.webp", escalar=(ancho, alto))
         
         # Colores
-        self.color_fondo_1 = (20, 30, 40)
-        self.color_fondo_2 = (40, 30, 60)
+        self.color_fondo_1 = (20, 30, 50)
+        self.color_fondo_2 = (40, 50, 80)
         self.color_titulo = (255, 215, 0)
-        self.color_subtitulo = (200, 200, 100)
-        self.color_texto = (255, 255, 200)
-        self.color_texto_destacado = (100, 255, 100)
         self.color_sombra = (50, 50, 50)
-        self.color_header = (100, 100, 150)
+        self.color_texto = (255, 255, 255)
+        self.color_fila_par = (60, 70, 100)
+        self.color_fila_impar = (50, 60, 90)
         
         # Fuentes
-        self.fuente_titulo = pygame.font.Font(None, 60)
-        self.fuente_subtitulo = pygame.font.Font(None, 40)
-        self.fuente_texto = pygame.font.Font(None, 24)
+        self.fuente_titulo = pygame.font.Font(None, 70)
+        self.fuente_tab = pygame.font.Font(None, 32)
+        self.fuente_tabla = pygame.font.Font(None, 28)
         self.fuente_boton = pygame.font.Font(None, 32)
         
-        # Tabs (Personal / Global)
+        # Tab actual
         self.tab_actual = "personal"  # "personal" o "global"
         
-        # Datos de rankings
-        self.ranking_personal = []
-        self.ranking_global = []
-        self.nombre_jugador = ""
-        
-        # Botones
+        # Botones de tabs (más pequeños, en la parte superior)
         centro_x = self.screen_rect.centerx
         
+        # Botones de tabs (personalizados, no usar helper porque tienen posición especial)
         self.boton_personal = Boton(
             "Personal",
-            centro_x - 260,
+            centro_x - 250,
             100,
             120,
             40,
-            self.fuente_boton,
+            self.fuente_tab,
             (255, 255, 255)
         )
         
@@ -74,7 +68,7 @@ class rankings(BaseEstado):
             100,
             120,
             40,
-            self.fuente_boton,
+            self.fuente_tab,
             (255, 255, 255)
         )
         
@@ -84,9 +78,11 @@ class rankings(BaseEstado):
             100,
             120,
             40,
-            self.fuente_boton,
+            self.fuente_tab,
             (255, 255, 255)
         )
+        
+        self.botones = [self.boton_personal, self.boton_global, self.boton_volver]
     
     def startup(self, persist: dict):
         """
@@ -97,93 +93,34 @@ class rankings(BaseEstado):
         """
         self.persist = persist
         self.done = False
-        
-        # Obtener nombre del jugador
-        self.nombre_jugador = persist.get("nombre_jugador", "Invitado")
-        
-        # Cargar rankings
-        self.cargar_rankings()
     
-    def cargar_rankings(self):
-        """Carga los datos de rankings personal y global."""
-        # Cargar datos de usuario actual
-        usuario = obtener_usuario(self.nombre_jugador, RUTA_USUARIOS)
+    def obtener_datos_personal(self):
+        """Obtiene las estadísticas personales del jugador actual."""
+        nombre_jugador = self.persist.get("nombre_jugador", "Invitado")
+        stats = obtener_estadisticas_usuario(nombre_jugador)
         
-        if "error" not in usuario:
-            # Ranking personal (últimas partidas del jugador)
-            self.ranking_personal = self.obtener_ranking_personal(usuario)
+        if stats:
+            return {
+                "nombre": stats["nombre"],
+                "puntos_totales": stats["puntos_totales"],
+                "partidas_jugadas": stats["partidas_jugadas"],
+                "respuestas_correctas": stats["respuestas_correctas"],
+                "respuestas_totales": stats["respuestas_totales"],
+                "promedio": stats["promedio_puntos"]
+            }
         else:
-            self.ranking_personal = []
-        
-        # Ranking global (mejores jugadores)
-        self.ranking_global = self.obtener_ranking_global()
+            return {
+                "nombre": nombre_jugador,
+                "puntos_totales": 0,
+                "partidas_jugadas": 0,
+                "respuestas_correctas": 0,
+                "respuestas_totales": 0,
+                "promedio": 0
+            }
     
-    def obtener_ranking_personal(self, usuario: dict) -> list:
-        """
-        Obtiene el ranking personal del jugador.
-        
-        Parámetros:
-            usuario (dict): Datos del usuario
-        
-        Retorna:
-            list: Lista de partidas ordenadas por puntaje
-        """
-        ranking = []
-        
-        # Verificar que existan los datos necesarios
-        if "puntajes" in usuario and "porcentajes" in usuario and "aciertos" in usuario:
-            total_partidas = len(usuario["puntajes"])
-            
-            for i in range(total_partidas):
-                partida = {
-                    "numero": i + 1,
-                    "puntaje": usuario["puntajes"][i],
-                    "aciertos": usuario["aciertos"][i],
-                    "porcentaje": usuario["porcentajes"][i],
-                    "total_preguntas": usuario.get("total_preguntas", [10])[i] if i < len(usuario.get("total_preguntas", [10])) else 10
-                }
-                ranking.append(partida)
-            
-            # Ordenar por puntaje descendente
-            ranking.sort(key=lambda x: x["puntaje"], reverse=True)
-        
-        return ranking
-    
-    def obtener_ranking_global(self) -> list:
-        """
-        Obtiene el ranking global de todos los jugadores.
-        
-        Retorna:
-            list: Lista de jugadores ordenados por mejor puntaje
-        """
-        ranking = []
-        
-        # Cargar todos los usuarios
-        datos = cargar_json(RUTA_USUARIOS, {})
-        
-        for nombre, usuario in datos.items():
-            if "puntajes" in usuario and usuario["puntajes"]:
-                # Obtener el mejor puntaje del jugador
-                mejor_puntaje = max(usuario["puntajes"])
-                idx_mejor = usuario["puntajes"].index(mejor_puntaje)
-                
-                mejor_porcentaje = usuario.get("porcentajes", [0])[idx_mejor] if idx_mejor < len(usuario.get("porcentajes", [0])) else 0
-                mejor_aciertos = usuario.get("aciertos", [0])[idx_mejor] if idx_mejor < len(usuario.get("aciertos", [0])) else 0
-                total_partidas = len(usuario["puntajes"])
-                
-                jugador = {
-                    "nombre": nombre,
-                    "mejor_puntaje": mejor_puntaje,
-                    "mejor_porcentaje": mejor_porcentaje,
-                    "mejor_aciertos": mejor_aciertos,
-                    "total_partidas": total_partidas
-                }
-                ranking.append(jugador)
-        
-        # Ordenar por mejor puntaje descendente
-        ranking.sort(key=lambda x: x["mejor_puntaje"], reverse=True)
-        
-        return ranking
+    def obtener_datos_global(self):
+        """Obtiene el ranking global de los mejores jugadores."""
+        return obtener_ranking_global(limite=10)
     
     def get_event(self, event: pygame.event.Event):
         """
@@ -197,12 +134,18 @@ class rankings(BaseEstado):
         elif event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
             
-            if self.boton_personal.verificar_click(pos):
-                self.tab_actual = "personal"
-            elif self.boton_global.verificar_click(pos):
-                self.tab_actual = "global"
-            elif self.boton_volver.verificar_click(pos):
-                self.done = True
+            # Verificar en orden inverso
+            for boton in reversed(self.botones):
+                if boton == self.boton_volver and boton.verificar_click(pos):
+                    self.done = True
+                    break
+                elif boton == self.boton_global and boton.verificar_click(pos):
+                    self.tab_actual = "global"
+                    break
+                elif boton == self.boton_personal and boton.verificar_click(pos):
+                    self.tab_actual = "personal"
+                    break
+                    
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN:
                 self.done = True
@@ -220,13 +163,17 @@ class rankings(BaseEstado):
         """
         # Actualizar hover de todos los botones
         mouse_pos = pygame.mouse.get_pos()
-        self.boton_personal.actualizar_hover(mouse_pos)
-        self.boton_global.actualizar_hover(mouse_pos)
-        self.boton_volver.actualizar_hover(mouse_pos)
+        for boton in self.botones:
+            boton.hover = False
+        
+        for boton in reversed(self.botones):
+            if boton.rect.collidepoint(mouse_pos):
+                boton.hover = True
+                break
     
     def draw(self, surface: pygame.Surface):
         """
-        Dibuja los rankings en la superficie.
+        Dibuja la pantalla de rankings.
         
         Parámetros:
             surface (pygame.Surface): Superficie donde dibujar
@@ -234,167 +181,121 @@ class rankings(BaseEstado):
         # Dibujar fondo de imagen
         surface.blit(self.fondo, (0, 0))
         
-        # Overlay oscuro para mejorar legibilidad
+        # Overlay semi-transparente
         overlay = pygame.Surface(self.screen_rect.size)
-        overlay.set_alpha(200)
+        overlay.set_alpha(150)
         overlay.fill((0, 0, 0))
         surface.blit(overlay, (0, 0))
         
-        # Título principal
+        # Título
+        titulo = "RANKINGS"
         dibujar_sombra_texto(
             surface,
-            "RANKINGS",
+            titulo,
             self.fuente_titulo,
             self.color_titulo,
             self.color_sombra,
-            (self.screen_rect.centerx, 40),
-            offset=3
+            (self.screen_rect.centerx, 50),
+            offset=4
         )
         
-        # Marcar botón activo como "siempre hover" (botón oscuro)
-        # Resetear hover primero
-        self.boton_personal.hover = False
-        self.boton_global.hover = False
+        # Botones de tabs
+        for boton in self.botones:
+            boton.draw(surface)
         
-        # Luego activar el hover del tab actual
+        # Contenido según tab actual
         if self.tab_actual == "personal":
-            self.boton_personal.hover = True
+            self.dibujar_personal(surface)
         else:
-            self.boton_global.hover = True
-        
-        # Dibujar botones
-        self.boton_personal.draw(surface)
-        self.boton_global.draw(surface)
-        self.boton_volver.draw(surface)
-        
-        # Dibujar ranking según tab activo
-        if self.tab_actual == "personal":
-            self.draw_ranking_personal(surface)
-        else:
-            self.draw_ranking_global(surface)
+            self.dibujar_global(surface)
     
-    def draw_ranking_personal(self, surface: pygame.Surface):
-        """
-        Dibuja el ranking personal del jugador.
+    def dibujar_personal(self, surface: pygame.Surface):
+        """Dibuja las estadísticas personales del jugador."""
+        datos = self.obtener_datos_personal()
         
-        Parámetros:
-            surface (pygame.Surface): Superficie donde dibujar
-        """
-        # Subtítulo
-        subtitulo = f"Ranking Personal - {self.nombre_jugador}"
-        subtitulo_render = self.fuente_subtitulo.render(subtitulo, True, self.color_subtitulo)
-        subtitulo_rect = subtitulo_render.get_rect(center=(self.screen_rect.centerx, 170))
-        surface.blit(subtitulo_render, subtitulo_rect)
+        # Título del tab
+        tab_titulo = f"Estadísticas de {datos['nombre']}"
+        tab_render = self.fuente_tab.render(tab_titulo, True, (200, 220, 255))
+        tab_rect = tab_render.get_rect(center=(self.screen_rect.centerx, 180))
+        surface.blit(tab_render, tab_rect)
         
-        if not self.ranking_personal:
-            # No hay datos
-            mensaje = "Aún no has jugado ninguna partida"
-            mensaje_render = self.fuente_texto.render(mensaje, True, self.color_texto)
-            mensaje_rect = mensaje_render.get_rect(center=(self.screen_rect.centerx, 300))
-            surface.blit(mensaje_render, mensaje_rect)
-            return
+        # Estadísticas
+        stats = [
+            f"Puntos totales: {datos['puntos_totales']}",
+            f"Partidas jugadas: {datos['partidas_jugadas']}",
+            f"Respuestas correctas: {datos['respuestas_correctas']}/{datos['respuestas_totales']}",
+            f"Promedio por partida: {datos['promedio']:.1f} puntos"
+        ]
         
-        # Headers de la tabla
-        y_start = 220
-        headers = ["#", "Partida", "Puntaje", "Aciertos", "Porcentaje"]
-        x_positions = [100, 200, 350, 500, 640]
+        y_offset = 250
+        for stat in stats:
+            # Fondo de la fila
+            fila_rect = pygame.Rect(150, y_offset - 20, 500, 50)
+            pygame.draw.rect(surface, self.color_fila_par, fila_rect, 0, 10)
+            pygame.draw.rect(surface, (100, 120, 150), fila_rect, 2, 10)
+            
+            # Texto
+            stat_render = self.fuente_tabla.render(stat, True, self.color_texto)
+            stat_rect = stat_render.get_rect(center=(self.screen_rect.centerx, y_offset))
+            surface.blit(stat_render, stat_rect)
+            y_offset += 70
+    
+    def dibujar_global(self, surface: pygame.Surface):
+        """Dibuja el ranking global de mejores jugadores."""
+        ranking = self.obtener_datos_global()
+        
+        # Título del tab
+        tab_titulo = "Top 10 Mejores Jugadores"
+        tab_render = self.fuente_tab.render(tab_titulo, True, (200, 220, 255))
+        tab_rect = tab_render.get_rect(center=(self.screen_rect.centerx, 180))
+        surface.blit(tab_render, tab_rect)
+        
+        # Encabezado de tabla
+        y_offset = 230
+        headers = ["#", "Jugador", "Puntos", "Promedio"]
+        x_positions = [180, 280, 480, 600]
         
         for i, header in enumerate(headers):
-            header_render = self.fuente_texto.render(header, True, self.color_header)
-            surface.blit(header_render, (x_positions[i], y_start))
+            header_render = self.fuente_tabla.render(header, True, (255, 215, 0))
+            header_rect = header_render.get_rect(left=x_positions[i], centery=y_offset)
+            surface.blit(header_render, header_rect)
         
-        # Línea separadora
-        pygame.draw.line(surface, self.color_header, (80, y_start + 30), (720, y_start + 30), 2)
+        y_offset += 40
         
-        # Mostrar top 10 partidas
-        y_offset = y_start + 45
-        max_mostrar = min(10, len(self.ranking_personal))
-        
-        for i in range(max_mostrar):
-            partida = self.ranking_personal[i]
-            
-            # Determinar color (destacar top 3)
-            if i < 3:
-                color = self.color_texto_destacado
-            else:
-                color = self.color_texto
-            
-            # Renderizar datos
-            datos = [
-                str(i + 1),
-                f"#{partida['numero']}",
-                str(partida['puntaje']),
-                f"{partida['aciertos']}/{partida['total_preguntas']}",
-                f"{partida['porcentaje']:.1f}%"
-            ]
-            
-            for j, dato in enumerate(datos):
-                dato_render = self.fuente_texto.render(dato, True, color)
-                surface.blit(dato_render, (x_positions[j], y_offset))
-            
-            y_offset += 30
-    
-    def draw_ranking_global(self, surface: pygame.Surface):
-        """
-        Dibuja el ranking global de jugadores.
-        
-        Parámetros:
-            surface (pygame.Surface): Superficie donde dibujar
-        """
-        # Subtítulo
-        subtitulo = "Ranking Global - Mejores Jugadores"
-        subtitulo_render = self.fuente_subtitulo.render(subtitulo, True, self.color_subtitulo)
-        subtitulo_rect = subtitulo_render.get_rect(center=(self.screen_rect.centerx, 170))
-        surface.blit(subtitulo_render, subtitulo_rect)
-        
-        if not self.ranking_global:
-            # No hay datos
-            mensaje = "No hay datos de jugadores aún"
-            mensaje_render = self.fuente_texto.render(mensaje, True, self.color_texto)
-            mensaje_rect = mensaje_render.get_rect(center=(self.screen_rect.centerx, 300))
-            surface.blit(mensaje_render, mensaje_rect)
-            return
-        
-        # Headers de la tabla
-        y_start = 220
-        headers = ["#", "Jugador", "Mejor Puntaje", "Aciertos", "Partidas"]
-        x_positions = [100, 200, 380, 530, 660]
-        
-        for i, header in enumerate(headers):
-            header_render = self.fuente_texto.render(header, True, self.color_header)
-            surface.blit(header_render, (x_positions[i], y_start))
-        
-        # Línea separadora
-        pygame.draw.line(surface, self.color_header, (80, y_start + 30), (720, y_start + 30), 2)
-        
-        # Mostrar top 10 jugadores
-        y_offset = y_start + 45
-        max_mostrar = min(10, len(self.ranking_global))
-        
-        for i in range(max_mostrar):
-            jugador = self.ranking_global[i]
-            
-            # Determinar color (destacar top 3 y jugador actual)
-            if jugador["nombre"] == self.nombre_jugador:
-                color = (255, 255, 100)  # Amarillo para jugador actual
-            elif i < 3:
-                color = self.color_texto_destacado
-            else:
-                color = self.color_texto
-            
-            # Renderizar datos
-            nombre_truncado = jugador["nombre"][:15] if len(jugador["nombre"]) > 15 else jugador["nombre"]
-            
-            datos = [
-                str(i + 1),
-                nombre_truncado,
-                str(jugador["mejor_puntaje"]),
-                str(jugador["mejor_aciertos"]),
-                str(jugador["total_partidas"])
-            ]
-            
-            for j, dato in enumerate(datos):
-                dato_render = self.fuente_texto.render(dato, True, color)
-                surface.blit(dato_render, (x_positions[j], y_offset))
-            
-            y_offset += 30
+        # Ranking
+        if not ranking:
+            no_datos = "No hay datos de jugadores aún"
+            no_datos_render = self.fuente_tabla.render(no_datos, True, (150, 150, 150))
+            no_datos_rect = no_datos_render.get_rect(center=(self.screen_rect.centerx, y_offset + 50))
+            surface.blit(no_datos_render, no_datos_rect)
+        else:
+            for i, jugador in enumerate(ranking[:10]):  # Mostrar solo top 10
+                # Fondo de la fila
+                color_fila = self.color_fila_par if i % 2 == 0 else self.color_fila_impar
+                fila_rect = pygame.Rect(150, y_offset - 15, 500, 40)
+                pygame.draw.rect(surface, color_fila, fila_rect, 0, 5)
+                
+                # Datos
+                puesto = str(i + 1)
+                nombre = jugador["nombre"]
+                puntos = str(jugador["puntos_totales"])
+                promedio = f"{jugador['promedio_puntos']:.1f}"
+                
+                datos = [puesto, nombre, puntos, promedio]
+                
+                for j, dato in enumerate(datos):
+                    # Color especial para el top 3
+                    if i == 0:
+                        color = (255, 215, 0)  # Oro
+                    elif i == 1:
+                        color = (192, 192, 192)  # Plata
+                    elif i == 2:
+                        color = (205, 127, 50)  # Bronce
+                    else:
+                        color = self.color_texto
+                    
+                    dato_render = self.fuente_tabla.render(dato, True, color)
+                    dato_rect = dato_render.get_rect(left=x_positions[j], centery=y_offset)
+                    surface.blit(dato_render, dato_rect)
+                
+                y_offset += 45
