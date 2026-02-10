@@ -33,7 +33,7 @@ class minijuego(BaseEstado):
         
         # Cargar fondo
         ancho, alto = self.screen_rect.size
-        self.fondo = cargar_imagen("FondoDesertico.png", escalar=(ancho, alto))
+        self.fondo = cargar_imagen("cueva.png", escalar=(ancho, alto))
         
         # Colores
         self.color_fondo_1 = (30, 40, 50)
@@ -57,14 +57,17 @@ class minijuego(BaseEstado):
         self.tamano_celda = 80
         self.margen = 5
         
-        # Botones para la pantalla de victoria usando helper
+        # ⬅️ BANDERA PARA MOSTRAR PANTALLA DE DERROTA
+        self.mostrar_derrota = False
+        
+        # Botones para las pantallas de resultado usando helper
         centro_x = self.screen_rect.centerx
         botones_lista = crear_botones_centrados(
             ["Reintentar", "Menú Principal"],
             centro_x,
             self.fuente_boton,
             tamano="pequeno",
-            y_inicial=350
+            y_inicial=250
         )
         
         self.boton_reintentar = botones_lista[0]
@@ -84,6 +87,7 @@ class minijuego(BaseEstado):
         # Inicializar juego
         self.estado_juego = inicializar_estado_minijuego()
         self.actualizar_movimientos_validos()
+        self.mostrar_derrota = False  # ⬅️ Resetear flag
     
     def actualizar_movimientos_validos(self):
         """Actualiza la lista de movimientos válidos."""
@@ -96,9 +100,13 @@ class minijuego(BaseEstado):
             
             # Verificar si no hay movimientos válidos y el juego no ha terminado
             if len(self.movimientos_validos) == 0 and not self.estado_juego["terminado"]:
-                # Marcar el juego como terminado y como derrota
-                self.estado_juego["terminado"] = True
-                self.estado_juego["victoria"] = False
+                # Verificar si NO está en la posición objetivo
+                if self.estado_juego["jugador_pos"] != self.estado_juego["objetivo"]:
+                    # ⬅️ Sin salida - MOSTRAR PANTALLA DE DERROTA
+                    print("🔴 Sin movimientos válidos - DERROTA")
+                    self.estado_juego["terminado"] = True
+                    self.estado_juego["victoria"] = False
+                    self.mostrar_derrota = True
     
     def procesar_click_celda(self, fila: int, col: int):
         """
@@ -119,22 +127,18 @@ class minijuego(BaseEstado):
                 )
                 
                 if not self.estado_juego["terminado"]:
+                    # Actualizar movimientos y verificar si hay derrota
                     self.actualizar_movimientos_validos()
                 else:
                     # Si el juego terminó, verificar si fue victoria o derrota
-                    if not self.estado_juego["victoria"]:
-                        # Ir a Game Over
-                        self.ir_a_game_over()
+                    if self.estado_juego["victoria"]:
+                        print("🎉 ¡VICTORIA!")
+                        self.mostrar_derrota = False
+                    else:
+                        # ⬅️ Derrota - MOSTRAR PANTALLA DE DERROTA
+                        print("💀 DERROTA")
+                        self.mostrar_derrota = True
                 break
-    
-    def ir_a_game_over(self):
-        """Cambia al estado de Game Over cuando se pierde el minijuego."""
-        # Preparar datos para Game Over
-        self.persist["puntos_totales"] = 0
-        self.persist["respuestas_correctas"] = 0
-        self.persist["total_preguntas"] = 1
-        self.sig_estado = "Gameover"
-        self.done = True
     
     def get_event(self, event: pygame.event.Event):
         """
@@ -148,17 +152,16 @@ class minijuego(BaseEstado):
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 self.done = True
+            # ⬅️ SI EL JUEGO TERMINÓ (VICTORIA O DERROTA)
             elif self.estado_juego and self.estado_juego["terminado"]:
-                # Si ganó, mostrar opciones con teclas
-                if self.estado_juego["victoria"]:
-                    if event.key == pygame.K_r:
-                        # Reintentar
-                        self.estado_juego = inicializar_estado_minijuego()
-                        self.actualizar_movimientos_validos()
-                    elif event.key == pygame.K_RETURN or event.key == pygame.K_m:
-                        # Volver al menú
-                        self.done = True
-                # Si perdió, ya fue al Game Over automáticamente
+                if event.key == pygame.K_r:
+                    # Reintentar
+                    self.estado_juego = inicializar_estado_minijuego()
+                    self.actualizar_movimientos_validos()
+                    self.mostrar_derrota = False
+                elif event.key == pygame.K_RETURN or event.key == pygame.K_m:
+                    # Volver al menú
+                    self.done = True
             elif event.key >= pygame.K_1 and event.key <= pygame.K_9:
                 # Navegación con números
                 num = event.key - pygame.K_1 + 1
@@ -168,8 +171,8 @@ class minijuego(BaseEstado):
         elif event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
             
-            # Si el juego terminó con victoria, verificar clics en botones
-            if self.estado_juego and self.estado_juego["terminado"] and self.estado_juego["victoria"]:
+            # ⬅️ SI EL JUEGO TERMINÓ (VICTORIA O DERROTA), VERIFICAR CLICS EN BOTONES
+            if self.estado_juego and self.estado_juego["terminado"]:
                 # Verificar en orden inverso
                 for boton in reversed(self.botones):
                     if boton == self.boton_menu and boton.verificar_click(pos):
@@ -178,9 +181,10 @@ class minijuego(BaseEstado):
                     elif boton == self.boton_reintentar and boton.verificar_click(pos):
                         self.estado_juego = inicializar_estado_minijuego()
                         self.actualizar_movimientos_validos()
+                        self.mostrar_derrota = False
                         break
             # Si el juego no ha terminado, procesar clics en celdas
-            elif not self.estado_juego["terminado"]:
+            elif self.estado_juego and not self.estado_juego["terminado"]:
                 # Calcular qué celda se clickeó
                 offset_x = (self.screen_rect.width - (self.estado_juego["tamano"] * (self.tamano_celda + self.margen))) // 2
                 offset_y = 150
@@ -198,8 +202,8 @@ class minijuego(BaseEstado):
         Parámetros:
             dt (float): Delta time en milisegundos
         """
-        # Actualizar hover de los botones si el juego terminó con victoria
-        if self.estado_juego and self.estado_juego["terminado"] and self.estado_juego["victoria"]:
+        # ⬅️ ACTUALIZAR HOVER SI EL JUEGO TERMINÓ (VICTORIA O DERROTA)
+        if self.estado_juego and self.estado_juego["terminado"]:
             mouse_pos = pygame.mouse.get_pos()
             for boton in self.botones:
                 boton.hover = False
@@ -231,8 +235,8 @@ class minijuego(BaseEstado):
         titulo_rect = titulo_render.get_rect(center=(self.screen_rect.centerx, 40))
         surface.blit(titulo_render, titulo_rect)
         
-        # Instrucciones
-        if not self.estado_juego["terminado"]:
+        # Instrucciones (solo si el juego no ha terminado)
+        if self.estado_juego and not self.estado_juego["terminado"]:
             inst_text = "Mueve a celdas con números mayores. Llega a la esquina dorada."
             inst_render = self.fuente_instrucciones.render(inst_text, True, self.color_texto)
             inst_rect = inst_render.get_rect(center=(self.screen_rect.centerx, 90))
@@ -248,9 +252,13 @@ class minijuego(BaseEstado):
         if self.estado_juego:
             self.dibujar_matriz(surface)
         
-        # Resultado (solo si ganó)
+        # ⬅️ PANTALLA DE VICTORIA
         if self.estado_juego and self.estado_juego["terminado"] and self.estado_juego["victoria"]:
-            self.dibujar_resultado(surface)
+            self.dibujar_resultado_victoria(surface)
+        
+        # ⬅️ PANTALLA DE DERROTA
+        if self.mostrar_derrota:
+            self.dibujar_resultado_derrota(surface)
     
     def dibujar_matriz(self, surface: pygame.Surface):
         """Dibuja la matriz del juego."""
@@ -298,9 +306,9 @@ class minijuego(BaseEstado):
                 valor_rect = valor_render.get_rect(center=(x + self.tamano_celda // 2, y + self.tamano_celda // 2))
                 surface.blit(valor_render, valor_rect)
     
-    def dibujar_resultado(self, surface: pygame.Surface):
-        """Dibuja el resultado del juego cuando se gana."""
-        # Overlay semi-transparente
+    def dibujar_resultado_victoria(self, surface: pygame.Surface):
+        """Dibuja la pantalla de victoria."""
+        # Overlay semi-transparente oscuro
         overlay = pygame.Surface((ANCHO, ALTO))
         overlay.set_alpha(200)
         overlay.fill((0, 0, 0))
@@ -329,3 +337,35 @@ class minijuego(BaseEstado):
         inst_render = self.fuente_instrucciones.render(inst_text, True, (150, 150, 150))
         inst_rect = inst_render.get_rect(center=(self.screen_rect.centerx, 520))
         surface.blit(inst_render, inst_rect)
+    
+    def dibujar_resultado_derrota(self, surface: pygame.Surface):
+        """Dibuja la pantalla de derrota (igual que victoria pero con mensaje diferente)."""
+        # Overlay semi-transparente oscuro (igual que victoria)
+        overlay = pygame.Surface((ANCHO, ALTO))
+        overlay.set_alpha(200)
+        overlay.fill((0, 0, 0))
+        surface.blit(overlay, (0, 0))
+        
+        # Mensaje de derrota (en rojo)
+        mensaje = "¡DERROTA!"
+        color = (255, 100, 100)
+        
+        mensaje_render = self.fuente_titulo.render(mensaje, True, color)
+        mensaje_rect = mensaje_render.get_rect(center=(self.screen_rect.centerx, 200))
+        surface.blit(mensaje_render, mensaje_rect)
+        
+        # Mensaje de ánimo
+        mensaje_animo = "No hay movimientos válidos. ¡Inténtalo de nuevo!"
+        mensaje_animo_render = self.fuente_instrucciones.render(mensaje_animo, True, (200, 200, 200))
+        mensaje_animo_rect = mensaje_animo_render.get_rect(center=(self.screen_rect.centerx, 270))
+        surface.blit(mensaje_animo_render, mensaje_animo_rect)
+        
+        # Botones (iguales que en victoria)
+        for boton in self.botones:
+            boton.draw(surface)
+        
+        # Instrucciones de teclas (iguales que en victoria)
+        inst_text = "R: Reintentar  |  M: Menú  |  ESC: Salir"
+        inst_render = self.fuente_instrucciones.render(inst_text, True, (150, 150, 150))
+        inst_rect = inst_render.get_rect(center=(self.screen_rect.centerx, 520))
+        surface.blit(inst_render, inst_rect)  # ⬅️ CORREGIDO: inst_rect en vez de inst_text

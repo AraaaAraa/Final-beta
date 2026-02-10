@@ -6,7 +6,7 @@
 
 import pygame
 from .base import BaseEstado
-from ..Botones import Boton, crear_botones_centrados
+from ..Botones import Boton, crear_botones_centrados, BOTON_ALTO_PEQUENO, BOTON_ANCHO_PEQUENO
 from ..efectos import dibujar_degradado_vertical, dibujar_sombra_texto
 from ..recursos import cargar_imagen
 
@@ -97,10 +97,10 @@ class historia(BaseEstado):
         # Botón saltar historia (visible durante las pantallas de historia)
         self.boton_saltar = Boton(
             "Saltar Historia",
-            self.screen_rect.width - 220,  # Esquina superior derecha
+            self.screen_rect.width - 400,  # Esquina superior derecha
             20,
-            200,
-            45,
+            BOTON_ANCHO_PEQUENO,
+            BOTON_ALTO_PEQUENO,
             pygame.font.Font(None, 28),
             (255, 255, 255)
         )

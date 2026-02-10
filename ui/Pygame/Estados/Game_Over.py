@@ -9,7 +9,8 @@ from .base import BaseEstado
 from ..Botones import Boton, crear_botones_centrados
 from ..efectos import dibujar_degradado_vertical
 from ..recursos import cargar_imagen
-from models.usuario import guardar_usuario
+from data.repositorio_usuarios import guardar_estadisticas_usuario
+from config.constantes import RUTA_USUARIOS
 
 
 class gameOver(BaseEstado):
@@ -64,14 +65,34 @@ class gameOver(BaseEstado):
         self.persist = persist
         self.done = False
         
-        # Guardar estadísticas del usuario
-        nombre_jugador = self.persist.get("nombre_jugador", "Invitado")
-        puntos = self.persist.get("puntos_totales", 0)
-        respuestas_correctas = self.persist.get("respuestas_correctas", 0)
-        total_preguntas = self.persist.get("total_preguntas", 0)
-        
-        # Guardar en el archivo de usuarios
-        guardar_usuario(nombre_jugador, puntos, respuestas_correctas, total_preguntas)
+        # Verificar si viene del minijuego
+        if self.persist.get("desde_minijuego", False):
+            # No guardar estadísticas del minijuego
+            print("⚠️ Game Over desde minijuego - No se guardan estadísticas")
+            # Limpiar el flag
+            self.persist["desde_minijuego"] = False
+        else:
+            # Guardar estadísticas normales del juego principal
+            nombre_jugador = self.persist.get("nombre_jugador", "Invitado")
+            puntos = self.persist.get("puntos_totales", 0)
+            respuestas_correctas = self.persist.get("respuestas_correctas", 0)
+            total_preguntas = self.persist.get("total_preguntas", 0)
+            
+            # Crear el diccionario de resultado con la estructura correcta
+            resultado = {
+                "puntos": puntos,  # Nota: usa "puntos" no "puntos_totales"
+                "aciertos": respuestas_correctas,
+                "total_preguntas": total_preguntas,
+                "tiempo": 0,
+                "historial": []
+            }
+            
+            # Guardar en el archivo de usuarios
+            try:
+                guardar_estadisticas_usuario(nombre_jugador, resultado, RUTA_USUARIOS)
+                print(f"✅ Estadísticas guardadas para {nombre_jugador}")
+            except Exception as e:
+                print(f"❌ Error al guardar estadísticas: {e}")
     
     def get_event(self, event: pygame.event.Event):
         """
@@ -92,14 +113,23 @@ class gameOver(BaseEstado):
                     self.done = True
                     break
                 elif boton == self.boton_reintentar and boton.verificar_click(pos):
-                    self.sig_estado = "Gameplay"
+                    # Si vino del minijuego, volver al minijuego
+                    if self.persist.get("vino_de_minijuego", False):
+                        self.sig_estado = "Minijuego"
+                        self.persist["vino_de_minijuego"] = False
+                    else:
+                        self.sig_estado = "Gameplay"
                     self.done = True
                     break
                     
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:
                 # Reintentar con Enter
-                self.sig_estado = "Gameplay"
+                if self.persist.get("vino_de_minijuego", False):
+                    self.sig_estado = "Minijuego"
+                    self.persist["vino_de_minijuego"] = False
+                else:
+                    self.sig_estado = "Gameplay"
                 self.done = True
             elif event.key == pygame.K_ESCAPE:
                 # Volver al menú con ESC

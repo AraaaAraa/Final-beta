@@ -6,10 +6,12 @@
 
 import pygame
 from .base import BaseEstado
-from ..Botones import Boton, crear_botones_centrados
+from ..Botones import Boton, BOTON_ALTO_PEQUENO, BOTON_ANCHO_PEQUENO
 from ..efectos import dibujar_degradado_vertical, dibujar_sombra_texto
 from ..recursos import cargar_imagen
-from models.usuario import obtener_ranking_global, obtener_estadisticas_usuario
+from data.repositorio_usuarios import obtener_usuario
+from data.archivos_json import cargar_json
+from config.constantes import RUTA_USUARIOS
 
 
 class rankings(BaseEstado):
@@ -41,43 +43,42 @@ class rankings(BaseEstado):
         
         # Fuentes
         self.fuente_titulo = pygame.font.Font(None, 70)
-        self.fuente_tab = pygame.font.Font(None, 32)
+        self.fuente_tab = pygame.font.Font(None, 36)  # ⬅️ Más grande
         self.fuente_tabla = pygame.font.Font(None, 28)
         self.fuente_boton = pygame.font.Font(None, 32)
         
         # Tab actual
         self.tab_actual = "personal"  # "personal" o "global"
         
-        # Botones de tabs (más pequeños, en la parte superior)
+        # Botones de tabs (MÁS GRANDES)
         centro_x = self.screen_rect.centerx
         
-        # Botones de tabs (personalizados, no usar helper porque tienen posición especial)
         self.boton_personal = Boton(
             "Personal",
-            centro_x - 250,
-            100,
-            120,
-            40,
+            centro_x - 400,  # ⬅️ Ajustado
+            50,
+            BOTON_ANCHO_PEQUENO,  # ⬅️ Más ancho (antes 120)
+            BOTON_ALTO_PEQUENO,   # ⬅️ Más alto (antes 40)
             self.fuente_tab,
             (255, 255, 255)
         )
         
         self.boton_global = Boton(
             "Global",
-            centro_x - 130,
-            100,
-            120,
-            40,
+            centro_x - 150,  # ⬅️ Ajustado
+            50,
+            BOTON_ANCHO_PEQUENO,  # ⬅️ Más ancho (antes 120)
+            BOTON_ALTO_PEQUENO,   # ⬅️ Más alto
             self.fuente_tab,
             (255, 255, 255)
         )
         
         self.boton_volver = Boton(
             "Volver",
-            centro_x + 60,
-            100,
-            120,
-            40,
+            centro_x + 100,  # ⬅️ Ajustado
+            50,
+            BOTON_ANCHO_PEQUENO,  # ⬅️ Más ancho (antes 120)
+            BOTON_ALTO_PEQUENO,   # ⬅️ Más alto
             self.fuente_tab,
             (255, 255, 255)
         )
@@ -97,16 +98,22 @@ class rankings(BaseEstado):
     def obtener_datos_personal(self):
         """Obtiene las estadísticas personales del jugador actual."""
         nombre_jugador = self.persist.get("nombre_jugador", "Invitado")
-        stats = obtener_estadisticas_usuario(nombre_jugador)
+        usuario = obtener_usuario(nombre_jugador, RUTA_USUARIOS)
         
-        if stats:
+        if "error" not in usuario:
+            # Calcular promedio
+            promedio = 0
+            if usuario.get("puntajes") and len(usuario["puntajes"]) > 0:
+                total = sum(usuario["puntajes"])
+                promedio = total / len(usuario["puntajes"])
+            
             return {
-                "nombre": stats["nombre"],
-                "puntos_totales": stats["puntos_totales"],
-                "partidas_jugadas": stats["partidas_jugadas"],
-                "respuestas_correctas": stats["respuestas_correctas"],
-                "respuestas_totales": stats["respuestas_totales"],
-                "promedio": stats["promedio_puntos"]
+                "nombre": nombre_jugador,
+                "puntos_totales": sum(usuario.get("puntajes", [])),
+                "partidas_jugadas": usuario.get("intentos", 0),
+                "respuestas_correctas": sum(usuario.get("aciertos", [])),
+                "respuestas_totales": sum(usuario.get("total_preguntas", [])),
+                "promedio": promedio
             }
         else:
             return {
@@ -120,7 +127,24 @@ class rankings(BaseEstado):
     
     def obtener_datos_global(self):
         """Obtiene el ranking global de los mejores jugadores."""
-        return obtener_ranking_global(limite=10)
+        datos = cargar_json(RUTA_USUARIOS, {})
+        ranking = []
+        
+        for nombre, usuario in datos.items():
+            if usuario.get("puntajes") and len(usuario["puntajes"]) > 0:
+                mejor_puntaje = max(usuario["puntajes"])
+                promedio = sum(usuario["puntajes"]) / len(usuario["puntajes"])
+                
+                jugador = {
+                    "nombre": nombre,
+                    "puntos_totales": mejor_puntaje,
+                    "promedio_puntos": promedio
+                }
+                ranking.append(jugador)
+        
+        # Ordenar por puntos totales
+        ranking.sort(key=lambda x: x["puntos_totales"], reverse=True)
+        return ranking[:10]  # Top 10
     
     def get_event(self, event: pygame.event.Event):
         """
@@ -195,7 +219,7 @@ class rankings(BaseEstado):
             self.fuente_titulo,
             self.color_titulo,
             self.color_sombra,
-            (self.screen_rect.centerx, 50),
+            (self.screen_rect.centerx, 40),  # ⬅️ Subido un poco
             offset=4
         )
         
@@ -216,7 +240,7 @@ class rankings(BaseEstado):
         # Título del tab
         tab_titulo = f"Estadísticas de {datos['nombre']}"
         tab_render = self.fuente_tab.render(tab_titulo, True, (200, 220, 255))
-        tab_rect = tab_render.get_rect(center=(self.screen_rect.centerx, 180))
+        tab_rect = tab_render.get_rect(center=(self.screen_rect.centerx, 170))
         surface.blit(tab_render, tab_rect)
         
         # Estadísticas
@@ -228,15 +252,24 @@ class rankings(BaseEstado):
         ]
         
         y_offset = 250
+        # ⬅️ ANCHO Y CENTRADO MEJORADO
+        ancho_fila = 600  # Más ancho
+        
         for stat in stats:
-            # Fondo de la fila
-            fila_rect = pygame.Rect(150, y_offset - 20, 500, 50)
+            # Fondo de la fila CENTRADO
+            centro_x = self.screen_rect.centerx
+            fila_rect = pygame.Rect(
+                centro_x - (ancho_fila // 2),  # ⬅️ Centrado
+                y_offset - 20, 
+                ancho_fila, 
+                50
+            )
             pygame.draw.rect(surface, self.color_fila_par, fila_rect, 0, 10)
             pygame.draw.rect(surface, (100, 120, 150), fila_rect, 2, 10)
             
             # Texto
             stat_render = self.fuente_tabla.render(stat, True, self.color_texto)
-            stat_rect = stat_render.get_rect(center=(self.screen_rect.centerx, y_offset))
+            stat_rect = stat_render.get_rect(center=(centro_x, y_offset))
             surface.blit(stat_render, stat_rect)
             y_offset += 70
     
@@ -247,13 +280,25 @@ class rankings(BaseEstado):
         # Título del tab
         tab_titulo = "Top 10 Mejores Jugadores"
         tab_render = self.fuente_tab.render(tab_titulo, True, (200, 220, 255))
-        tab_rect = tab_render.get_rect(center=(self.screen_rect.centerx, 180))
+        tab_rect = tab_render.get_rect(center=(self.screen_rect.centerx, 170))
         surface.blit(tab_render, tab_rect)
         
         # Encabezado de tabla
         y_offset = 230
-        headers = ["#", "Jugador", "Puntos", "Promedio"]
-        x_positions = [180, 280, 480, 600]
+        headers = ["#", "Jugador", "Mejor Puntaje", "Promedio"]
+        
+        # ⬅️ CENTRADO MEJORADO
+        ancho_tabla = 600
+        centro_x = self.screen_rect.centerx
+        inicio_tabla = centro_x - (ancho_tabla // 2)
+        
+        # Posiciones relativas al inicio de la tabla
+        x_positions = [
+            inicio_tabla + 30,      # #
+            inicio_tabla + 150,     # Jugador
+            inicio_tabla + 380,     # Mejor Puntaje
+            inicio_tabla + 520      # Promedio
+        ]
         
         for i, header in enumerate(headers):
             header_render = self.fuente_tabla.render(header, True, (255, 215, 0))
@@ -266,13 +311,13 @@ class rankings(BaseEstado):
         if not ranking:
             no_datos = "No hay datos de jugadores aún"
             no_datos_render = self.fuente_tabla.render(no_datos, True, (150, 150, 150))
-            no_datos_rect = no_datos_render.get_rect(center=(self.screen_rect.centerx, y_offset + 50))
+            no_datos_rect = no_datos_render.get_rect(center=(centro_x, y_offset + 50))
             surface.blit(no_datos_render, no_datos_rect)
         else:
-            for i, jugador in enumerate(ranking[:10]):  # Mostrar solo top 10
-                # Fondo de la fila
+            for i, jugador in enumerate(ranking):
+                # Fondo de la fila CENTRADO
                 color_fila = self.color_fila_par if i % 2 == 0 else self.color_fila_impar
-                fila_rect = pygame.Rect(150, y_offset - 15, 500, 40)
+                fila_rect = pygame.Rect(inicio_tabla, y_offset - 15, ancho_tabla, 40)
                 pygame.draw.rect(surface, color_fila, fila_rect, 0, 5)
                 
                 # Datos

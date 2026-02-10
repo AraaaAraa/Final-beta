@@ -12,6 +12,9 @@ BASE_DIR = os.path.dirname(__file__)
 FONTS_DIR = os.path.join(BASE_DIR, "fonts")
 IMAGES_DIR = os.path.join(BASE_DIR, "imagenes")
 
+# ⬅️ CACHE GLOBAL DE IMÁGENES
+_cache_imagenes = {}
+
 
 def cargar_fuente(nombre: str, tamaño: int) -> pygame.font.Font:
     """
@@ -34,7 +37,7 @@ def cargar_fuente(nombre: str, tamaño: int) -> pygame.font.Font:
 
 def cargar_imagen(nombre: str, escalar: tuple = None) -> pygame.Surface:
     """
-    Carga una imagen desde el directorio de imágenes.
+    Carga una imagen desde el directorio de imágenes con cache.
     
     Parámetros:
         nombre (str): Nombre del archivo de imagen
@@ -43,16 +46,35 @@ def cargar_imagen(nombre: str, escalar: tuple = None) -> pygame.Surface:
     Retorna:
         pygame.Surface: Imagen cargada o superficie magenta si no existe
     """
+    # Crear clave de cache única
+    cache_key = f"{nombre}_{escalar}" if escalar else nombre
+    
+    # ⬅️ VERIFICAR SI YA ESTÁ EN CACHE
+    if cache_key in _cache_imagenes:
+        return _cache_imagenes[cache_key].copy()  # Retornar copia para evitar modificaciones
+    
     ruta = os.path.join(IMAGES_DIR, nombre)
     if os.path.exists(ruta):
         imagen = pygame.image.load(ruta).convert_alpha()
         if escalar:
             imagen = pygame.transform.scale(imagen, escalar)
-        return imagen
+        
+        # ⬅️ GUARDAR EN CACHE
+        _cache_imagenes[cache_key] = imagen
+        return imagen.copy()
     else:
         # Crear superficie de placeholder magenta si no existe la imagen
         print(f"⚠️ Imagen no encontrada: {ruta}, usando placeholder")
         tamaño = escalar if escalar else (100, 100)
         img = pygame.Surface(tamaño)
         img.fill((255, 0, 255))
-        return img
+        
+        # ⬅️ GUARDAR PLACEHOLDER EN CACHE
+        _cache_imagenes[cache_key] = img
+        return img.copy()
+
+
+def limpiar_cache_imagenes():
+    """Limpia el cache de imágenes para liberar memoria."""
+    global _cache_imagenes
+    _cache_imagenes.clear()
