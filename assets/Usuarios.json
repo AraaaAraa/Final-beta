@@ -1,0 +1,472 @@
+{
+  "daniel": {
+    "intentos": 1,
+    "puntajes": [
+      18
+    ],
+    "tiempos": [
+      0.0
+    ],
+    "aciertos": [
+      9
+    ],
+    "total_preguntas": [
+      10
+    ],
+    "porcentajes": [
+      90.0
+    ],
+    "historial": [
+      [
+        {
+          "pregunta_id": 4,
+          "nivel": 1,
+          "respuesta_usuario": "A",
+          "tiempo_segundos": 0.0,
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nFELICIDADES NO SOS UN BURRO!!!",
+          "puntos": 1,
+          "puntos_base": 1,
+          "puntos_buffeo": 0,
+          "seleccion": "Hades",
+          "intentos_usados": 1
+        },
+        {
+          "pregunta_id": 7,
+          "nivel": 1,
+          "respuesta_usuario": "A",
+          "tiempo_segundos": 0.0,
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nFELICIDADES NO SOS UN BURRO!!!",
+          "puntos": 1,
+          "puntos_base": 1,
+          "puntos_buffeo": 0,
+          "seleccion": "Hermes",
+          "intentos_usados": 1
+        },
+        {
+          "pregunta_id": 5,
+          "nivel": 1,
+          "respuesta_usuario": "A",
+          "tiempo_segundos": 0.0,
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nFELICIDADES NO SOS UN BURRO!!!",
+          "puntos": 1,
+          "puntos_base": 1,
+          "puntos_buffeo": 0,
+          "seleccion": "Isis",
+          "intentos_usados": 1
+        },
+        {
+          "pregunta_id": 10,
+          "nivel": 1,
+          "respuesta_usuario": "D",
+          "tiempo_segundos": 0.0,
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nFELICIDADES NO SOS UN BURRO!!!",
+          "puntos": 1,
+          "puntos_base": 1,
+          "puntos_buffeo": 0,
+          "seleccion": "Medusa",
+          "intentos_usados": 1
+        },
+        {
+          "pregunta_id": 3,
+          "nivel": 1,
+          "respuesta_usuario": "C",
+          "tiempo_segundos": 0.0,
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nFELICIDADES NO SOS UN BURRO!!!",
+          "puntos": 2,
+          "puntos_base": 1,
+          "puntos_buffeo": 1,
+          "seleccion": "Abraham",
+          "intentos_usados": 1
+        },
+        {
+          "pregunta_id": 12,
+          "nivel": 2,
+          "respuesta_usuario": "D",
+          "tiempo_segundos": 0.0,
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nFuaaaa qué inteligente!!!",
+          "puntos": 3,
+          "puntos_base": 2,
+          "puntos_buffeo": 1,
+          "seleccion": "Perseo",
+          "intentos_usados": 1
+        },
+        {
+          "pregunta_id": 20,
+          "nivel": 2,
+          "respuesta_usuario": "B",
+          "tiempo_segundos": 0.0,
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nFuaaaa qué inteligente!!!",
+          "puntos": 5,
+          "puntos_base": 2,
+          "puntos_buffeo": 3,
+          "seleccion": "Minotauro",
+          "intentos_usados": 1
+        },
+        {
+          "pregunta_id": 21,
+          "nivel": 2,
+          "respuesta_usuario": "C",
+          "tiempo_segundos": 0.0,
+          "valida": true,
+          "es_correcta": false,
+          "mensaje": "❌ INCORRECTO\nBue... ¿qué pasó?",
+          "puntos": -2,
+          "puntos_base": -2,
+          "puntos_buffeo": 0,
+          "seleccion": "Anubis",
+          "intentos_usados": 1
+        },
+        {
+          "pregunta_id": 23,
+          "nivel": 3,
+          "respuesta_usuario": "C",
+          "tiempo_segundos": 0.0,
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nNi yo la sabía!!!",
+          "puntos": 3,
+          "puntos_base": 3,
+          "puntos_buffeo": 0,
+          "seleccion": "Toro",
+          "intentos_usados": 1
+        },
+        {
+          "pregunta_id": 25,
+          "nivel": 3,
+          "respuesta_usuario": "A",
+          "tiempo_segundos": 0.0,
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nNi yo la sabía!!!",
+          "puntos": 3,
+          "puntos_base": 3,
+          "puntos_buffeo": 0,
+          "seleccion": "Monte Olimpo",
+          "intentos_usados": 1
+        }
+      ]
+    ]
+  },
+  "visual_player": {
+    "intentos": 1,
+    "puntajes": [
+      -2
+    ],
+    "tiempos": [
+      30.31
+    ],
+    "aciertos": [
+      3
+    ],
+    "total_preguntas": [
+      6
+    ],
+    "porcentajes": [
+      50.0
+    ],
+    "historial": [
+      [
+        {
+          "valida": true,
+          "es_correcta": false,
+          "mensaje": "❌ INCORRECTO\nTe entiendo la verdad\n💡 La respuesta correcta era: Atenea",
+          "puntos": -3,
+          "puntos_base": -3,
+          "puntos_buffeo": 0,
+          "seleccion": "Minerva",
+          "pregunta_id": 22
+        },
+        {
+          "valida": true,
+          "es_correcta": false,
+          "mensaje": "❌ INCORRECTO\nTe entiendo la verdad\n💡 La respuesta correcta era: Moisés",
+          "puntos": -3,
+          "puntos_base": -3,
+          "puntos_buffeo": 0,
+          "seleccion": "Josué",
+          "pregunta_id": 28
+        },
+        {
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nFELICIDADES NO SOS UN BURRO!!!",
+          "puntos": 1,
+          "puntos_base": 1,
+          "puntos_buffeo": 0,
+          "seleccion": "Hades",
+          "pregunta_id": 4
+        },
+        {
+          "valida": true,
+          "es_correcta": false,
+          "mensaje": "❌ INCORRECTO\nBue... ¿qué pasó?\n💡 La respuesta correcta era: Aarón",
+          "puntos": -2,
+          "puntos_base": -2,
+          "puntos_buffeo": 0,
+          "seleccion": "Ezequiel",
+          "pregunta_id": 17
+        },
+        {
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nFuaaaa qué inteligente!!!",
+          "puntos": 2,
+          "puntos_base": 2,
+          "puntos_buffeo": 0,
+          "seleccion": "Noé",
+          "pregunta_id": 19
+        },
+        {
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nNi yo la sabía!!!",
+          "puntos": 3,
+          "puntos_base": 3,
+          "puntos_buffeo": 0,
+          "seleccion": "Aquiles",
+          "pregunta_id": 30
+        }
+      ]
+    ]
+  },
+  "Ara": {
+    "intentos": 3,
+    "puntajes": [
+      12,
+      -1,
+      9
+    ],
+    "tiempos": [
+      212.22,
+      0.0,
+      72.56
+    ],
+    "aciertos": [
+      5,
+      2,
+      5
+    ],
+    "total_preguntas": [
+      6,
+      5,
+      6
+    ],
+    "porcentajes": [
+      83.3,
+      40.0,
+      83.3
+    ],
+    "historial": [
+      [
+        {
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nNi yo la sabía!!!",
+          "puntos": 3,
+          "puntos_base": 3,
+          "puntos_buffeo": 0,
+          "seleccion": "Delfos",
+          "pregunta_id": 27
+        },
+        {
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nFuaaaa qué inteligente!!!",
+          "puntos": 2,
+          "puntos_base": 2,
+          "puntos_buffeo": 0,
+          "seleccion": "Keops",
+          "pregunta_id": 13
+        },
+        {
+          "valida": true,
+          "es_correcta": false,
+          "mensaje": "❌ INCORRECTO\nBue... ¿qué pasó?\n💡 La respuesta correcta era: Perseo",
+          "puntos": -2,
+          "puntos_base": -2,
+          "puntos_buffeo": 0,
+          "seleccion": "Hércules",
+          "pregunta_id": 12
+        },
+        {
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nNi yo la sabía!!!",
+          "puntos": 3,
+          "puntos_base": 3,
+          "puntos_buffeo": 0,
+          "seleccion": "Sara",
+          "pregunta_id": 33
+        },
+        {
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nNi yo la sabía!!!",
+          "puntos": 3,
+          "puntos_base": 3,
+          "puntos_buffeo": 0,
+          "seleccion": "Monte Olimpo",
+          "pregunta_id": 25
+        },
+        {
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nNi yo la sabía!!!",
+          "puntos": 3,
+          "puntos_base": 3,
+          "puntos_buffeo": 0,
+          "seleccion": "Atenea",
+          "pregunta_id": 22
+        }
+      ],
+      [
+        {
+          "pregunta_id": 7,
+          "nivel": 1,
+          "respuesta_usuario": "A",
+          "tiempo_segundos": 0.0,
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nFELICIDADES NO SOS UN BURRO!!!",
+          "puntos": 1,
+          "puntos_base": 1,
+          "puntos_buffeo": 0,
+          "seleccion": "Hermes",
+          "intentos_usados": 1
+        },
+        {
+          "pregunta_id": 8,
+          "nivel": 1,
+          "respuesta_usuario": "D",
+          "tiempo_segundos": 0.0,
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nFELICIDADES NO SOS UN BURRO!!!",
+          "puntos": 1,
+          "puntos_base": 1,
+          "puntos_buffeo": 0,
+          "seleccion": "Vara de Aarón",
+          "intentos_usados": 1
+        },
+        {
+          "pregunta_id": 6,
+          "nivel": 1,
+          "respuesta_usuario": "B",
+          "tiempo_segundos": 0.0,
+          "valida": true,
+          "es_correcta": false,
+          "mensaje": "❌ INCORRECTO\nSos un burro",
+          "puntos": -1,
+          "puntos_base": -1,
+          "puntos_buffeo": 0,
+          "seleccion": "Horus",
+          "intentos_usados": 1
+        },
+        {
+          "pregunta_id": 2,
+          "nivel": 1,
+          "respuesta_usuario": "D",
+          "tiempo_segundos": 0.0,
+          "valida": true,
+          "es_correcta": false,
+          "mensaje": "❌ INCORRECTO\nSos un burro\n💡 La respuesta correcta era: Nilo",
+          "puntos": -1,
+          "puntos_base": -1,
+          "puntos_buffeo": 0,
+          "seleccion": "Amazonas",
+          "intentos_usados": 1
+        },
+        {
+          "pregunta_id": 4,
+          "nivel": 1,
+          "respuesta_usuario": "D",
+          "tiempo_segundos": 0.0,
+          "valida": true,
+          "es_correcta": false,
+          "mensaje": "❌ INCORRECTO\nSos un burro\n💡 La respuesta correcta era: Hades",
+          "puntos": -1,
+          "puntos_base": -1,
+          "puntos_buffeo": 0,
+          "seleccion": "Dionisio",
+          "intentos_usados": 1
+        }
+      ],
+      [
+        {
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nNi yo la sabía!!!",
+          "puntos": 3,
+          "puntos_base": 3,
+          "puntos_buffeo": 0,
+          "seleccion": "David",
+          "pregunta_id": 31
+        },
+        {
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nFELICIDADES NO SOS UN BURRO!!!",
+          "puntos": 1,
+          "puntos_base": 1,
+          "puntos_buffeo": 0,
+          "seleccion": "Medusa",
+          "pregunta_id": 10
+        },
+        {
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nNi yo la sabía!!!",
+          "puntos": 3,
+          "puntos_base": 3,
+          "puntos_buffeo": 0,
+          "seleccion": "Atenea",
+          "pregunta_id": 22
+        },
+        {
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nFELICIDADES NO SOS UN BURRO!!!",
+          "puntos": 1,
+          "puntos_base": 1,
+          "puntos_buffeo": 0,
+          "seleccion": "Hades",
+          "pregunta_id": 4
+        },
+        {
+          "valida": true,
+          "es_correcta": true,
+          "mensaje": "✅ CORRECTO\nNi yo la sabía!!!",
+          "puntos": 4,
+          "puntos_base": 3,
+          "puntos_buffeo": 1,
+          "seleccion": "Aquiles",
+          "pregunta_id": 30
+        },
+        {
+          "valida": true,
+          "es_correcta": false,
+          "mensaje": "❌ INCORRECTO\nTe entiendo la verdad\n💡 La respuesta correcta era: David",
+          "puntos": -3,
+          "puntos_base": -3,
+          "puntos_buffeo": 0,
+          "seleccion": "Ezequías",
+          "pregunta_id": 24
+        }
+      ]
+    ]
+  }
+}
