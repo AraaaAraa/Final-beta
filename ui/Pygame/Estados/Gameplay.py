@@ -6,7 +6,9 @@
 
 import pygame
 from .base import BaseEstado
-from ..Botones import Boton
+from config.constantes import ALTO, ANCHO
+from ..Botones import Boton, BOTON_ALTO_PEQUENO, BOTON_ANCHO_PEQUENO
+from ..recursos import cargar_imagen
 from ..efectos import dibujar_degradado_vertical, dibujar_sombra_texto
 from data.repositorio_preguntas import cargar_preguntas_desde_csv
 from core.logica_juego import (
@@ -17,6 +19,7 @@ from core.logica_juego import (
     verificar_condicion_fin_partida
 )
 from core.logica_preguntas import calcular_racha_actual, determinar_intentos_maximos
+from core.logica_buffeos import verificar_objeto_equipado  # ⬅️ NUEVO IMPORT
 from config.constantes import RUTA_PREGUNTAS, PREGUNTAS_POR_NIVEL, MAX_ERRORES_PERMITIDOS
 
 
@@ -33,9 +36,11 @@ class gameplay(BaseEstado):
         super(gameplay, self).__init__()
         self.sig_estado = "Gameover"
         
+        # Cargar fondo
+        ancho, alto = self.screen_rect.size
+        self.fondo = cargar_imagen("cueva.png", escalar=(ancho, alto))
+        
         # Colores
-        self.color_fondo_1 = (20, 30, 50)
-        self.color_fondo_2 = (50, 30, 80)
         self.color_texto = (255, 255, 255)
         self.color_pregunta = (255, 255, 200)
         self.color_correcto = (100, 255, 100)
@@ -47,6 +52,7 @@ class gameplay(BaseEstado):
         self.fuente_pregunta = pygame.font.Font(None, 32)
         self.fuente_opcion = pygame.font.Font(None, 28)
         self.fuente_stats = pygame.font.Font(None, 30)
+        self.fuente_buffeo = pygame.font.Font(None, 24)  # ⬅️ NUEVA FUENTE PARA BUFFEO
         
         # Estado del juego
         self.preguntas = {}
@@ -70,6 +76,10 @@ class gameplay(BaseEstado):
         self.resultado_actual = None
         self.tiempo_resultado = 0
         
+        # ⬅️ ESTADO DE BUFFEO
+        self.buffeo_activo = False
+        self.datos_buffeo = None
+        
         # Botones de opciones (se crean dinámicamente)
         self.botones_opciones = []
     
@@ -82,6 +92,9 @@ class gameplay(BaseEstado):
         """
         self.persist = persist
         self.done = False
+        
+        # Obtener nombre del jugador
+        self.nombre_usuario = self.persist.get("nombre_jugador", "Jugador")
         
         # Resetear estado del juego
         self.preguntas = cargar_preguntas_desde_csv(RUTA_PREGUNTAS)
@@ -96,6 +109,8 @@ class gameplay(BaseEstado):
         self.esperando_respuesta = False
         self.mostrar_resultado = False
         self.resultado_actual = None
+        self.buffeo_activo = False
+        self.datos_buffeo = None
         
         # Cargar primera pregunta
         self.cargar_siguiente_pregunta()
@@ -129,6 +144,9 @@ class gameplay(BaseEstado):
         self.preguntas_usadas.append(self.pregunta_actual.get("id", 0))
         self.numero_pregunta_nivel += 1
         
+        # ⬅️ ACTUALIZAR BUFFEO ANTES DE MOSTRAR LA PREGUNTA
+        self.actualizar_buffeo()
+        
         # Crear botones de opciones
         self.crear_botones_opciones()
         
@@ -138,19 +156,27 @@ class gameplay(BaseEstado):
         self.mostrar_resultado = False
         self.resultado_actual = None
     
+    def actualizar_buffeo(self):
+        """Actualiza los datos del buffeo según la racha actual."""
+        self.datos_buffeo = calcular_datos_buffeo_para_ui(self.racha_actual, self.nombre_usuario)
+        self.buffeo_activo = self.datos_buffeo.get("tiene_buffeo", False)
+    
     def crear_botones_opciones(self):
         """Crea los botones para las opciones de respuesta."""
         self.botones_opciones = []
         opciones = self.pregunta_actual.get("opciones", [])
         
-        y_start = 300
+        y_start = 200
+        espaciado = 100
+        x_centrado = (self.screen_rect.width - BOTON_ANCHO_PEQUENO) // 2
+        
         for i, opcion in enumerate(opciones):
             boton = Boton(
                 f"{chr(self.ASCII_A + i)}. {opcion}",
-                100,
-                y_start + (i * 60),
-                600,
-                50,
+                x_centrado,
+                y_start + (i * espaciado),
+                BOTON_ANCHO_PEQUENO,
+                BOTON_ALTO_PEQUENO,
                 self.fuente_opcion,
                 (80, 80, 150)
             )
@@ -191,6 +217,9 @@ class gameplay(BaseEstado):
             self.racha_actual = 0
             self.errores += 1
         
+        # ⬅️ ACTUALIZAR BUFFEO DESPUÉS DE RESPONDER
+        self.actualizar_buffeo()
+        
         # Guardar respuesta
         self.respuestas_partida.append(self.resultado_actual)
         
@@ -230,11 +259,15 @@ class gameplay(BaseEstado):
             self.quit = True
         elif event.type == pygame.MOUSEBUTTONDOWN and self.esperando_respuesta:
             pos = pygame.mouse.get_pos()
-            for i, boton in enumerate(self.botones_opciones):
+            
+            # Verificar en orden inverso (del último al primero)
+            for i in range(len(self.botones_opciones) - 1, -1, -1):
+                boton = self.botones_opciones[i]
                 if boton.verificar_click(pos):
                     self.opcion_seleccionada = i
                     self.procesar_respuesta(i)
                     break
+                    
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 self.terminar_juego()
@@ -264,6 +297,21 @@ class gameplay(BaseEstado):
         Parámetros:
             dt (float): Delta time en milisegundos
         """
+        # Actualizar hover de botones
+        if self.esperando_respuesta:
+            mouse_pos = pygame.mouse.get_pos()
+            
+            # Resetear todos los hovers
+            for boton in self.botones_opciones:
+                boton.hover = False
+            
+            # Verificar hover en orden inverso
+            for i in range(len(self.botones_opciones) - 1, -1, -1):
+                boton = self.botones_opciones[i]
+                if boton.rect.collidepoint(mouse_pos):
+                    boton.hover = True
+                    break
+        
         if self.mostrar_resultado:
             self.tiempo_resultado += dt
             # Avanzar automáticamente después de 3 segundos
@@ -277,11 +325,21 @@ class gameplay(BaseEstado):
         Parámetros:
             surface (pygame.Surface): Superficie donde dibujar
         """
-        # Fondo con degradado
-        dibujar_degradado_vertical(surface, self.color_fondo_1, self.color_fondo_2)
+        # Dibujar fondo de imagen
+        surface.blit(self.fondo, (0, 0))
+        
+        # Overlay semi-transparente
+        overlay = pygame.Surface(self.screen_rect.size)
+        overlay.set_alpha(100)
+        overlay.fill((0, 0, 0))
+        surface.blit(overlay, (0, 0))
         
         # Encabezado con estadísticas
         self.dibujar_stats(surface)
+        
+        # ⬅️ MOSTRAR BUFFEO SI ESTÁ ACTIVO
+        if self.buffeo_activo and self.datos_buffeo and self.esperando_respuesta:
+            self.dibujar_buffeo(surface)
         
         # Pregunta
         if self.pregunta_actual:
@@ -312,9 +370,11 @@ class gameplay(BaseEstado):
         
         y += 35
         
-        # Racha
+        # Racha (con indicador de buffeo)
         racha_text = f"Racha: {self.racha_actual}"
-        racha_render = self.fuente_stats.render(racha_text, True, self.color_buffeo)
+        if self.buffeo_activo:
+            racha_text += " 🔥"  # Indicador visual de buffeo activo
+        racha_render = self.fuente_stats.render(racha_text, True, self.color_buffeo if self.buffeo_activo else self.color_texto)
         surface.blit(racha_render, (20, y))
         
         # Errores
@@ -322,6 +382,55 @@ class gameplay(BaseEstado):
         color_error = self.color_incorrecto if self.errores > 0 else self.color_texto
         errores_render = self.fuente_stats.render(errores_text, True, color_error)
         surface.blit(errores_render, (400, y))
+        
+        # ⬅️ MOSTRAR OBJETO EQUIPADO
+        objeto = verificar_objeto_equipado(self.nombre_usuario)
+        if objeto:
+            y += 35
+            objeto_text = f"⚔️ Objeto: {objeto.capitalize()}"
+            objeto_render = self.fuente_buffeo.render(objeto_text, True, (150, 255, 150))
+            surface.blit(objeto_render, (20, y))
+    
+    def dibujar_buffeo(self, surface: pygame.Surface):
+        """Dibuja el indicador de buffeo activo."""
+        if not self.datos_buffeo:
+            return
+        
+        # Posición en la esquina superior derecha
+        x = ANCHO - 250
+        y = 100
+        
+        # Fondo semi-transparente para el buffeo
+        buffeo_bg = pygame.Surface((230, 80))
+        buffeo_bg.set_alpha(180)
+        buffeo_bg.fill((50, 30, 10))
+        surface.blit(buffeo_bg, (x, y))
+        
+        # Borde dorado
+        pygame.draw.rect(surface, self.color_buffeo, (x, y, 230, 80), 2)
+        
+        # Título
+        titulo_text = "🔥 BUFFEO ACTIVO!"
+        titulo_render = self.fuente_buffeo.render(titulo_text, True, self.color_buffeo)
+        surface.blit(titulo_render, (x + 10, y + 10))
+        
+        # Detalles del buffeo
+        puntos_racha = self.datos_buffeo.get("puntos_racha", 0)
+        puntos_objeto = self.datos_buffeo.get("puntos_objeto", 0)
+        puntos_totales = self.datos_buffeo.get("puntos_totales", 0)
+        
+        y_offset = y + 35
+        
+        if puntos_racha > 0:
+            racha_text = f"  Racha: +{puntos_racha} pts"
+            racha_render = self.fuente_buffeo.render(racha_text, True, (255, 200, 100))
+            surface.blit(racha_render, (x + 10, y_offset))
+            y_offset += 20
+        
+        if puntos_objeto > 0:
+            objeto_text = f"  Objeto: +{puntos_objeto} pts"
+            objeto_render = self.fuente_buffeo.render(objeto_text, True, (150, 255, 150))
+            surface.blit(objeto_render, (x + 10, y_offset))
     
     def dibujar_pregunta(self, surface: pygame.Surface):
         """Dibuja la pregunta actual."""
@@ -361,7 +470,7 @@ class gameplay(BaseEstado):
     def dibujar_resultado(self, surface: pygame.Surface):
         """Dibuja el resultado de la respuesta."""
         # Overlay semi-transparente
-        overlay = pygame.Surface((800, 600))
+        overlay = pygame.Surface((ANCHO, ALTO))
         overlay.set_alpha(200)
         overlay.fill((0, 0, 0))
         surface.blit(overlay, (0, 0))
@@ -380,13 +489,32 @@ class gameplay(BaseEstado):
             surface.blit(texto_render, texto_rect)
             y_offset += 50
         
-        # Puntos obtenidos
+        # ⬅️ DESGLOSE DE PUNTOS (incluyendo buffeo)
         if self.resultado_actual.get("es_correcta", False):
-            puntos = self.resultado_actual.get("puntos", 0)
-            puntos_text = f"+{puntos} puntos"
+            puntos_totales = self.resultado_actual.get("puntos", 0)
+            puntos_base = self.resultado_actual.get("puntos_base", puntos_totales)
+            puntos_buffeo = self.resultado_actual.get("puntos_buffeo", 0)
+            puntos_objeto = self.resultado_actual.get("puntos_objetos", 0)
+            
+            # Puntos totales
+            puntos_text = f"+{puntos_totales} puntos"
             puntos_render = self.fuente_stats.render(puntos_text, True, (255, 215, 0))
             puntos_rect = puntos_render.get_rect(center=(self.screen_rect.centerx, y_offset + 20))
             surface.blit(puntos_render, puntos_rect)
+            
+            # Desglose si hay buffeo
+            if puntos_buffeo > 0 or puntos_objeto > 0:
+                y_offset += 55
+                desglose_text = f"(Base: {puntos_base}"
+                if puntos_buffeo > 0:
+                    desglose_text += f" + Buffeo: {puntos_buffeo}"
+                if puntos_objeto > 0:
+                    desglose_text += f" + Objeto: {puntos_objeto}"
+                desglose_text += ")"
+                
+                desglose_render = self.fuente_buffeo.render(desglose_text, True, (200, 200, 200))
+                desglose_rect = desglose_render.get_rect(center=(self.screen_rect.centerx, y_offset))
+                surface.blit(desglose_render, desglose_rect)
         
         # Instrucción
         instruccion = "Presiona ESPACIO o espera 3 segundos..."

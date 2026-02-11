@@ -77,14 +77,16 @@ class gameOver(BaseEstado):
             puntos = self.persist.get("puntos_totales", 0)
             respuestas_correctas = self.persist.get("respuestas_correctas", 0)
             total_preguntas = self.persist.get("total_preguntas", 0)
+            tiempo = self.persist.get("tiempo_total", 0)
+            historial = self.persist.get("historial", [])
             
-            # Crear el diccionario de resultado con la estructura correcta
+            # Estructura correcta según repositorio_usuarios.py
             resultado = {
-                "puntos": puntos,  # Nota: usa "puntos" no "puntos_totales"
-                "aciertos": respuestas_correctas,
+                "puntos_totales": puntos,
+                "tiempo_total_segundos": tiempo,
+                "respuestas_correctas": respuestas_correctas,
                 "total_preguntas": total_preguntas,
-                "tiempo": 0,
-                "historial": []
+                "detalle": historial
             }
             
             # Guardar en el archivo de usuarios
