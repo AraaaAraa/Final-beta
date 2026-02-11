@@ -1,8 +1,25 @@
 # =============================================================================
 # MENSAJES Y TEXTOS DEL JUEGO
 # =============================================================================
-# Este archivo centraliza todos los mensajes y textos del juego
-# Facilita la traducción y personalización de mensajes
+# 📄 DESCRIPCIÓN:
+#    Centraliza todos los mensajes, textos y strings mostrados al usuario
+#    durante el juego. Incluye mensajes de bienvenida, buffeos, respuestas,
+#    objetos especiales, minijuegos, errores y partidas.
+#
+# 📥 IMPORTADO EN:
+#    - ui/consola/menu_consola.py - para mensajes de menú y bienvenida
+#    - ui/consola/juego_consola.py - para mensajes de gameplay en consola
+#    - ui/consola/minijuego_consola.py - para mensajes del minijuego
+#    - ui/Pygame/Estados/*.py - para textos mostrados en interfaz gráfica
+#
+# 🔗 DEPENDENCIAS:
+#    Ninguna (archivo de solo constantes de texto)
+#
+# 💡 NOTAS PARA LA DEFENSA:
+#    - Centralización facilita traducción e internacionalización futura
+#    - Separación de mensajes de lógica permite cambiar textos sin tocar código
+#    - Uso de formato .format() permite personalización dinámica de mensajes
+#    - Organización por categorías facilita localización de mensajes específicos
 # =============================================================================
 
 # =============================================================================

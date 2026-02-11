@@ -1,9 +1,33 @@
 # =============================================================================
-# CONFIGURACIÓN DEL JUEGO
+# CONFIGURACIÓN DEL JUEGO - CONSTANTES
 # =============================================================================
-# Este archivo contiene todas las constantes y configuraciones centralizadas
-# del juego de mitología. Facilita el ajuste de parámetros sin modificar
-# la lógica del juego.
+# 📄 DESCRIPCIÓN:
+#    Centraliza todas las constantes y configuraciones del juego de trivia
+#    de mitología. Incluye rutas de archivos, configuración de niveles,
+#    dificultades, sistema de buffeos, objetos especiales, minijuegos,
+#    límites de errores y configuración de Pygame.
+#
+# 📥 IMPORTADO EN:
+#    - core/logica_juego.py (línea 29) - para PREGUNTAS_POR_NIVEL, MAX_ERRORES_PERMITIDOS, RUTA_PREGUNTAS, RUTA_USUARIOS
+#    - core/logica_buffeos.py (línea ~7) - para RACHA_BUFFEO_MINIMA, PUNTOS_BUFFEO_POR_RACHA, OBJETOS_ESPECIALES, RUTA_ESTADO_BUFF
+#    - core/logica_puntaje.py (línea ~4) - para PUNTOS_POR_DIFICULTAD
+#    - core/logica_minijuego.py (línea ~5) - para TAMAÑO_MATRIZ_MINIJUEGO
+#    - data/repositorio_usuarios.py (línea ~6) - para RUTA_USUARIOS
+#    - data/repositorio_preguntas.py (línea ~6) - para RUTA_PREGUNTAS
+#    - ui/Pygame/Estados/Gameplay.py (línea 9, 23) - para ALTO, ANCHO, PREGUNTAS_POR_NIVEL, MAX_ERRORES_PERMITIDOS, RUTA_PREGUNTAS
+#    - ui/Pygame/main.py - para ANCHO, ALTO, FPS
+#    - ui/Pygame/Juego.py - para FPS, ANCHO, ALTO
+#    - ui/Pygame/Estados/*.py - para dimensiones y constantes de UI
+#
+# 🔗 DEPENDENCIAS:
+#    - os: para manejo de rutas de archivos
+#
+# 💡 NOTAS PARA LA DEFENSA:
+#    - Centralización de configuración facilita mantenimiento y escalabilidad
+#    - Separación clara entre constantes de lógica (PREGUNTAS_POR_NIVEL) 
+#      y de UI (ANCHO, ALTO, FPS)
+#    - Sistema de buffeos configurable permite balancear dificultad del juego
+#    - Uso de diccionarios para configuración permite extensibilidad
 # =============================================================================
 
 import os

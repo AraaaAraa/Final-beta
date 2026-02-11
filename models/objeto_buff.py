@@ -1,7 +1,22 @@
 # =============================================================================
 # MODELO: OBJETO BUFF
 # =============================================================================
-# Representa los objetos especiales/buffs del juego
+# 📄 DESCRIPCIÓN:
+#    Modelo de datos para objetos especiales/buffs del juego (Espada, Armadura,
+#    Raciones, Bolsa de Monedas). Define estructura y efectos de cada objeto.
+#
+# 📥 IMPORTADO EN:
+#    - (Actualmente no importado directamente, pero disponible para uso futuro)
+#    - La configuración de objetos está en config/constantes.py
+#
+# 🔗 DEPENDENCIAS:
+#    Ninguna (modelo de datos puro)
+#
+# 💡 NOTAS PARA LA DEFENSA:
+#    - Centraliza la lógica de efectos de objetos
+#    - Separación entre objetos consumibles y permanentes
+#    - Búsqueda manual de efectos sin usar .get()
+#    - Estructura extensible para agregar nuevos objetos
 # =============================================================================
 
 # =============================================================================
