@@ -57,8 +57,7 @@ def calcular_puntos_base(es_correcta: bool, dificultad: int) -> int:
 # Ejemplo de uso:
 #   resultado = calcular_puntaje_con_buffeo(3, 2, 0, 0)
 # =============================================================================
-def calcular_puntaje_con_buffeo(puntos_base: int, puntos_buffeo: int, 
-                                puntos_raciones: int, puntos_bolsa: int) -> dict:
+def calcular_puntaje_con_buffeo(puntos_base: int, puntos_buffeo: int, puntos_raciones: int, puntos_bolsa: int) -> dict:
     """Calcula el puntaje total incluyendo puntos de buffeo."""
     total = puntos_base + puntos_buffeo + puntos_raciones + puntos_bolsa
 

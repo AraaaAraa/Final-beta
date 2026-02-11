@@ -96,6 +96,13 @@ class gameplay(BaseEstado):
         # Obtener nombre del jugador
         self.nombre_usuario = self.persist.get("nombre_jugador", "Jugador")
         
+        # ⬅️ VERIFICAR OBJETO EQUIPADO AL INICIO
+        objeto_equipado = verificar_objeto_equipado(self.nombre_usuario)
+        if objeto_equipado:
+            print(f"🎮 Iniciando partida con objeto: {objeto_equipado}")
+        else:
+            print(f"🎮 Iniciando partida sin objetos especiales")
+        
         # Resetear estado del juego
         self.preguntas = cargar_preguntas_desde_csv(RUTA_PREGUNTAS)
         self.preguntas_usadas = []
@@ -160,6 +167,10 @@ class gameplay(BaseEstado):
         """Actualiza los datos del buffeo según la racha actual."""
         self.datos_buffeo = calcular_datos_buffeo_para_ui(self.racha_actual, self.nombre_usuario)
         self.buffeo_activo = self.datos_buffeo.get("tiene_buffeo", False)
+        
+        # ⬅️ DEBUG: Mostrar información del buffeo
+        if self.buffeo_activo:
+            print(f"🔥 Buffeo activo - Racha: {self.racha_actual}, Puntos extra: {self.datos_buffeo.get('puntos_totales', 0)}")
     
     def crear_botones_opciones(self):
         """Crea los botones para las opciones de respuesta."""
@@ -199,6 +210,10 @@ class gameplay(BaseEstado):
         # Convertir índice a letra (A, B, C, D)
         letra_respuesta = chr(self.ASCII_A + indice_opcion)
         
+        # ⬅️ VERIFICAR OBJETO ANTES DE PROCESAR
+        objeto_equipado = verificar_objeto_equipado(self.nombre_usuario)
+        print(f"📝 Procesando respuesta '{letra_respuesta}' - Objeto: {objeto_equipado}, Racha: {self.racha_actual}")
+        
         # Procesar con la lógica del core
         self.resultado_actual = procesar_pregunta_completa(
             self.pregunta_actual,
@@ -209,9 +224,14 @@ class gameplay(BaseEstado):
             determinar_intentos_maximos(self.nombre_usuario)
         )
         
+        # ⬅️ DEBUG: Mostrar puntos obtenidos
+        puntos_obtenidos = self.resultado_actual.get("puntos", 0)
+        es_correcta = self.resultado_actual.get("es_correcta", False)
+        print(f"✅ Resultado: {'Correcta' if es_correcta else 'Incorrecta'} - Puntos: {puntos_obtenidos}")
+        
         # Actualizar estadísticas
-        if self.resultado_actual.get("es_correcta", False):
-            self.puntos_totales += self.resultado_actual.get("puntos", 0)
+        if es_correcta:
+            self.puntos_totales += puntos_obtenidos
             self.racha_actual += 1
         else:
             self.racha_actual = 0
@@ -255,9 +275,10 @@ class gameplay(BaseEstado):
         
         # Si merece objeto, ir a pantalla de selección
         if merece_objeto:
-            print(f"🌟 ¡{self.nombre_usuario} merece un objeto especial!")
+            print(f"🌟 ¡{self.nombre_usuario} merece un objeto especial! ({respuestas_correctas}/{total_preguntas} correctas)")
             self.sig_estado = "SeleccionObjeto"
         else:
+            print(f"📊 Fin de partida: {respuestas_correctas}/{total_preguntas} correctas - No merece objeto")
             self.sig_estado = "Gameover"
         
         self.done = True
@@ -401,7 +422,15 @@ class gameplay(BaseEstado):
         objeto = verificar_objeto_equipado(self.nombre_usuario)
         if objeto:
             y += 35
-            objeto_text = f"⚔️ Objeto: {objeto.capitalize()}"
+            # ⬅️ MAPEO DE NOMBRES DE OBJETOS PARA DISPLAY
+            nombres_objetos = {
+                "espada": "⚔️ Espada",
+                "armadura": "🛡️ Armadura",
+                "raciones": "🍖 Raciones",
+                "bolsa_monedas": "💰 Bolsa"
+            }
+            nombre_display = nombres_objetos.get(objeto, objeto.capitalize())
+            objeto_text = f"Objeto: {nombre_display}"
             objeto_render = self.fuente_buffeo.render(objeto_text, True, (150, 255, 150))
             surface.blit(objeto_render, (20, y))
     

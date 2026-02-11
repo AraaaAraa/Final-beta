@@ -54,9 +54,7 @@ from config.constantes import (
 # Ejemplo de uso:
 #   resultado = procesar_pregunta_completa(pregunta, "Juan", 3, "A", 1, 2)
 # =============================================================================
-def procesar_pregunta_completa(pregunta: dict, nombre_usuario: str, racha_actual: int,
-                              respuesta_usuario: str, numero_intento: int, 
-                              max_intentos: int) -> dict:
+def procesar_pregunta_completa(pregunta: dict, nombre_usuario: str, racha_actual: int,respuesta_usuario: str, numero_intento: int, max_intentos: int) -> dict:
     """Procesa una pregunta completa con lógica de intentos."""
     # Evaluar respuesta
     evaluacion = evaluar_respuesta(
@@ -67,8 +65,7 @@ def procesar_pregunta_completa(pregunta: dict, nombre_usuario: str, racha_actual
     )
     
     if not evaluacion["valida"]:
-        return construir_resultado_respuesta(evaluacion, pregunta["nivel"], 
-                                            pregunta["correcta"], {}, False)
+        return construir_resultado_respuesta(evaluacion, pregunta["nivel"], pregunta["correcta"], {}, False)
     
     # Calcular puntos base
     puntos_base = calcular_puntos_base(evaluacion["es_correcta"], pregunta["dificultad"])
@@ -141,8 +138,7 @@ def procesar_pregunta_completa(pregunta: dict, nombre_usuario: str, racha_actual
 # Ejemplo de uso:
 #   resultado_nivel = procesar_nivel_completo(1, preguntas, [], "Juan", [])
 # =============================================================================
-def procesar_nivel_completo(nivel: int, preguntas: dict, preguntas_usadas: list,
-                           nombre_usuario: str, respuestas_partida: list) -> dict:
+def procesar_nivel_completo(nivel: int, preguntas: dict, preguntas_usadas: list, nombre_usuario: str, respuestas_partida: list) -> dict:
     """Procesa todas las preguntas de un nivel."""
     cantidad = PREGUNTAS_POR_NIVEL[nivel]
     
@@ -207,8 +203,7 @@ def obtener_pregunta_para_nivel(preguntas: dict, nivel: int, preguntas_usadas: l
 # Ejemplo de uso:
 #   stats = construir_estadisticas_partida(respuestas, 45, 10, 120.5)
 # =============================================================================
-def construir_estadisticas_partida(respuestas: list, puntos_totales: int,
-                                   puntos_buffeo: int, tiempo_total: float) -> dict:
+def construir_estadisticas_partida(respuestas: list, puntos_totales: int, puntos_buffeo: int, tiempo_total: float) -> dict:
     """Construye las estadísticas finales de una partida."""
     total_preguntas = len(respuestas)
     respuestas_correctas = 0
@@ -271,8 +266,7 @@ def verificar_condicion_fin_partida(respuestas: list) -> bool:
 # Ejemplo de uso:
 #   datos = preparar_datos_pregunta_para_ui(pregunta, 3, 1, 5)
 # =============================================================================
-def preparar_datos_pregunta_para_ui(pregunta: dict, racha_actual: int,
-                                   numero_pregunta: int, total_preguntas: int) -> dict:
+def preparar_datos_pregunta_para_ui(pregunta: dict, racha_actual: int, numero_pregunta: int, total_preguntas: int) -> dict:
     """Prepara los datos de una pregunta para la UI."""
     datos = {
         "pregunta": pregunta,

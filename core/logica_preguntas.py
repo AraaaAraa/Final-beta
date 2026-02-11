@@ -28,8 +28,7 @@ from core.logica_buffeos import verificar_objeto_equipado, usar_armadura
 # Ejemplo de uso:
 #   resultado = evaluar_respuesta("B", opciones, correcta, "Juan")
 # =============================================================================
-def evaluar_respuesta(respuesta_usuario: str, opciones: list, 
-                     respuesta_correcta: str, nombre_usuario: str) -> dict:
+def evaluar_respuesta(respuesta_usuario: str, opciones: list, respuesta_correcta: str, nombre_usuario: str) -> dict:
     """Evalúa una respuesta del usuario sin hacer prints."""
     respuesta_limpia = convertir_a_mayusculas(quitar_espacios_extremos(respuesta_usuario))
     indice = obtener_indice_letra(respuesta_limpia)
@@ -78,28 +77,26 @@ def evaluar_respuesta(respuesta_usuario: str, opciones: list,
 # Ejemplo de uso:
 #   mensaje = construir_mensaje_resultado(1, False, "Zeus", True)
 # =============================================================================
-def construir_mensaje_resultado(nivel: int, es_correcta: bool, 
-                               respuesta_correcta: str, 
-                               mostrar_correcta: bool = True) -> str:
+def construir_mensaje_resultado(nivel: int, es_correcta: bool, respuesta_correcta: str, mostrar_correcta: bool = True) -> str:
     """Construye el mensaje de resultado según nivel y corrección."""
     mensaje = ""
     
     # Determinar el mensaje base usando condicionales
     if nivel == 1:
         if es_correcta:
-            mensaje = "✅ CORRECTO\nFELICIDADES NO SOS UN BURRO!!!"
+            mensaje = "Bien hecho soldado!"
         else:
-            mensaje = "❌ INCORRECTO\nSos un burro"
+            mensaje = "Uy- preste atencion!"
     elif nivel == 2:
         if es_correcta:
-            mensaje = "✅ CORRECTO\nFuaaaa qué inteligente!!!"
+            mensaje = "Va bien solado! No se rinda ahora!"
         else:
-            mensaje = "❌ INCORRECTO\nBue... ¿qué pasó?"
+            mensaje = "Por poco... Pero no desanime!"
     elif nivel == 3:
         if es_correcta:
-            mensaje = "✅ CORRECTO\nNi yo la sabía!!!"
+            mensaje = "Esta seguro que solo es un guerrero?\nTiene mucho conocimieto!"
         else:
-            mensaje = "❌ INCORRECTO\nTe entiendo la verdad"
+            mensaje = "No falta mucho! Continue ande!"
     
     # Agregar respuesta correcta si es necesario
     if not es_correcta and mostrar_correcta:
@@ -194,9 +191,7 @@ def determinar_intentos_maximos(nombre_usuario: str) -> int:
 # Ejemplo de uso:
 #   resultado = construir_resultado_respuesta(eval, 1, "Zeus", puntos, True)
 # =============================================================================
-def construir_resultado_respuesta(evaluacion: dict, nivel: int, 
-                                  respuesta_correcta: str, puntos: dict,
-                                  mostrar_correcta: bool = True) -> dict:
+def construir_resultado_respuesta(evaluacion: dict, nivel: int, respuesta_correcta: str, puntos: dict,mostrar_correcta: bool = True) -> dict:
     """Construye el resultado completo de una respuesta."""
     if not evaluacion["valida"]:
         return {

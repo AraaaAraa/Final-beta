@@ -46,17 +46,40 @@ class seleccionObjeto(BaseEstado):
         self.opcion_hover = -1
         self.nombre_usuario = "Jugador"
         
-        # ��reas de los 4 cuadrantes
+        # Áreas de los 4 cuadrantes
         self.cuadrantes = []
         self.crear_cuadrantes()
         
-        # Emojis para cada objeto
-        self.emojis = {
-            "espada": "⚔️",
-            "armadura": "🛡️",
-            "raciones": "🍖",
-            "bolsa_monedas": "💰"
+        # ⬅️ CARGAR IMÁGENES DE OBJETOS
+        self.imagenes_objetos = {}
+        self.cargar_imagenes_objetos()
+    
+    def cargar_imagenes_objetos(self):
+        """Carga las imágenes de los objetos especiales."""
+        # Tamaño para los iconos
+        tamano_icono = (100, 100)
+        
+        # Intentar cargar imágenes, si no existen usar placeholders con colores
+        objetos_config = {
+            "espada": ("Espada.png", (200, 50, 50)),      # Rojo para espada
+            "armadura": ("Armadura.png", (100, 100, 200)), # Azul para armadura
+            "raciones": ("Raciones.png", (150, 100, 50)),  # Marrón para raciones
+            "bolsa_monedas": ("Bolsa_monedas.png", (255, 215, 0))  # Dorado para bolsa
         }
+        
+        for tipo, (nombre_archivo, color_placeholder) in objetos_config.items():
+            try:
+                # Intentar cargar la imagen
+                imagen = cargar_imagen(nombre_archivo, escalar=tamano_icono)
+                self.imagenes_objetos[tipo] = imagen
+            except:
+                # Si no existe, crear un placeholder con color
+                placeholder = pygame.Surface(tamano_icono)
+                placeholder.fill(color_placeholder)
+                # Agregar un borde para que se vea como icono
+                pygame.draw.rect(placeholder, (255, 255, 255), placeholder.get_rect(), 3)
+                self.imagenes_objetos[tipo] = placeholder
+                print(f"⚠️ Usando placeholder para {tipo}")
     
     def crear_cuadrantes(self):
         """Crea las áreas de los 4 cuadrantes para selección."""
@@ -163,6 +186,10 @@ class seleccionObjeto(BaseEstado):
                 self.seleccionar_objeto(2)
             elif event.key == pygame.K_4:
                 self.seleccionar_objeto(3)
+            elif event.key == pygame.K_ESCAPE:
+                # Saltar selección y ir directo a Game Over
+                self.sig_estado = "Gameover"
+                self.done = True
     
     def update(self, dt: float):
         """
@@ -240,16 +267,23 @@ class seleccionObjeto(BaseEstado):
         grosor_borde = 4 if es_hover else 2
         pygame.draw.rect(surface, color_borde, rect, grosor_borde, 10)
         
-        # Emoji del objeto
-        emoji = self.emojis.get(tipo, "⭐")
-        emoji_render = self.fuente_titulo.render(emoji, True, self.color_texto)
-        emoji_rect = emoji_render.get_rect(center=(rect.centerx, rect.top + 60))
-        surface.blit(emoji_render, emoji_rect)
+        # ⬅️ DIBUJAR IMAGEN DEL OBJETO (en lugar de emoji)
+        if tipo in self.imagenes_objetos:
+            imagen = self.imagenes_objetos[tipo]
+            imagen_rect = imagen.get_rect(center=(rect.centerx, rect.top + 70))
+            
+            # Si está en hover, agregar un efecto de brillo
+            if es_hover:
+                # Crear un borde dorado alrededor de la imagen
+                borde_rect = imagen_rect.inflate(10, 10)
+                pygame.draw.rect(surface, self.color_borde_hover, borde_rect, 3, 5)
+            
+            surface.blit(imagen, imagen_rect)
         
         # Nombre del objeto
         color_nombre = self.color_hover if es_hover else self.color_titulo
         nombre_render = self.fuente_objeto.render(nombre, True, color_nombre)
-        nombre_rect = nombre_render.get_rect(center=(rect.centerx, rect.top + 120))
+        nombre_rect = nombre_render.get_rect(center=(rect.centerx, rect.top + 150))
         surface.blit(nombre_render, nombre_rect)
         
         # Descripción del objeto (dividida en líneas)
@@ -261,6 +295,13 @@ class seleccionObjeto(BaseEstado):
         numero_render = self.fuente_descripcion.render(numero, True, (150, 150, 150))
         numero_rect = numero_render.get_rect(bottomright=(rect.right - 10, rect.bottom - 10))
         surface.blit(numero_render, numero_rect)
+        
+        # ⬅️ INDICADOR DE HOVER
+        if es_hover:
+            hover_text = "← Clic para elegir"
+            hover_render = self.fuente_descripcion.render(hover_text, True, self.color_borde_hover)
+            hover_rect = hover_render.get_rect(bottomleft=(rect.left + 10, rect.bottom - 10))
+            surface.blit(hover_render, hover_rect)
     
     def dibujar_descripcion(self, surface: pygame.Surface, descripcion: str, rect: pygame.Rect):
         """
@@ -290,7 +331,7 @@ class seleccionObjeto(BaseEstado):
             lineas.append(linea_actual.strip())
         
         # Dibujar líneas centradas
-        y_offset = rect.top + 160
+        y_offset = rect.top + 185
         for linea in lineas:
             linea_render = self.fuente_descripcion.render(linea, True, (200, 200, 200))
             linea_rect = linea_render.get_rect(center=(rect.centerx, y_offset))

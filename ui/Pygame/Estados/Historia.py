@@ -26,7 +26,7 @@ class historia(BaseEstado):
         
         # Cargar fondo
         ancho, alto = self.screen_rect.size
-        self.fondo = cargar_imagen("FondoDesertico.png", escalar=(ancho, alto))
+        self.fondo = cargar_imagen("Fondo_sangre.jpg", escalar=(ancho, alto))
         
         # Colores
         self.color_fondo_1 = (30, 20, 40)
@@ -35,7 +35,7 @@ class historia(BaseEstado):
         self.color_input = (255, 215, 0)
         
         # Fuentes
-        self.fuente_texto = pygame.font.Font(None, 26)
+        self.fuente_texto = pygame.font.Font(None, 30)
         self.fuente_boton = pygame.font.Font(None, 32)
         self.fuente_indicacion = pygame.font.Font(None, 24)
         self.fuente_input = pygame.font.Font(None, 40)
