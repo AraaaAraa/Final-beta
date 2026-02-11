@@ -7,7 +7,7 @@
 from data.archivos_json import cargar_json, guardar_json, verificar_archivo_existe
 from models.usuario import crear_usuario_nuevo, actualizar_estadisticas_usuario
 from utils.algoritmos import calcular_estadisticas_lista
-from config.constantes import RUTA_USUARIOS
+from config.constantes import RUTA_USUARIOS, RUTA_ESTADO_BUFF
 
 # =============================================================================
 # OBTENER_USUARIO
@@ -228,3 +228,76 @@ def ordenar_ranking(ranking: list) -> list:
         ranking[j + 1] = usuario_actual
     
     return ranking
+
+# =============================================================================
+# FUNCIONES PARA VIDAS EXTRA
+# =============================================================================
+
+def obtener_vidas_extra(nombre_usuario: str, ruta_archivo: str = RUTA_ESTADO_BUFF) -> int:
+    """
+    Obtiene las vidas extra del usuario desde EstadoBuff.json.
+    
+    Parámetros:
+        nombre_usuario (str): Nombre del usuario
+        ruta_archivo (str): Ruta del archivo EstadoBuff.json
+    
+    Retorna:
+        int: Número de vidas extra disponibles
+    """
+    import json
+    from pathlib import Path
+    
+    ruta = Path(ruta_archivo)
+    
+    if not ruta.exists():
+        return 0
+    
+    try:
+        with open(ruta, 'r', encoding='utf-8') as archivo:
+            datos = json.load(archivo)
+            
+            if nombre_usuario in datos:
+                usuario_data = datos[nombre_usuario]
+                return usuario_data.get("vidas_extra", 0)
+            
+            return 0
+    except:
+        return 0
+
+
+def guardar_vidas_extra(nombre_usuario: str, vidas_extra: int, ruta_archivo: str = RUTA_ESTADO_BUFF):
+    """
+    Guarda las vidas extra del usuario en EstadoBuff.json.
+    
+    Parámetros:
+        nombre_usuario (str): Nombre del usuario
+        vidas_extra (int): Número de vidas extra a guardar
+        ruta_archivo (str): Ruta del archivo EstadoBuff.json
+    """
+    import json
+    from pathlib import Path
+    
+    ruta = Path(ruta_archivo)
+    
+    # Cargar datos existentes
+    if ruta.exists():
+        try:
+            with open(ruta, 'r', encoding='utf-8') as archivo:
+                datos = json.load(archivo)
+        except:
+            datos = {}
+    else:
+        datos = {}
+    
+    # Crear entrada del usuario si no existe
+    if nombre_usuario not in datos:
+        datos[nombre_usuario] = {}
+    
+    # Actualizar vidas extra
+    datos[nombre_usuario]["vidas_extra"] = vidas_extra
+    
+    # Guardar
+    with open(ruta, 'w', encoding='utf-8') as archivo:
+        json.dump(datos, archivo, indent=2, ensure_ascii=False)
+    
+    print(f"💾 Vidas extra guardadas para {nombre_usuario}: {vidas_extra}")

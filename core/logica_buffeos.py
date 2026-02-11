@@ -427,3 +427,116 @@ def obtener_opciones_objetos() -> list:
         opciones.append(opcion)
     
     return opciones
+
+# =============================================================================
+# SISTEMA DE VIDAS EXTRA
+# =============================================================================
+
+def calcular_vidas_ganadas(puntos_totales: int) -> int:
+    """
+    Calcula cuántas vidas extra se ganaron según los puntos.
+    
+    Parámetros:
+        puntos_totales (int): Puntos totales de la partida
+    
+    Retorna:
+        int: Número de vidas extra ganadas
+    
+    Ejemplo:
+        calcular_vidas_ganadas(65) -> 2
+        calcular_vidas_ganadas(29) -> 0
+    """
+    from config.constantes import PUNTOS_POR_VIDA_EXTRA
+    
+    if puntos_totales < PUNTOS_POR_VIDA_EXTRA:
+        return 0
+    
+    vidas_ganadas = puntos_totales // PUNTOS_POR_VIDA_EXTRA
+    return vidas_ganadas
+
+
+def obtener_vidas_extra_usuario(nombre_usuario: str) -> int:
+    """
+    Obtiene las vidas extra acumuladas del usuario.
+    
+    Parámetros:
+        nombre_usuario (str): Nombre del usuario
+    
+    Retorna:
+        int: Número de vidas extra disponibles
+    """
+    from data.repositorio_usuarios import obtener_vidas_extra
+    from config.constantes import RUTA_ESTADO_BUFF
+    
+    vidas_extra = obtener_vidas_extra(nombre_usuario, RUTA_ESTADO_BUFF)
+    return vidas_extra
+
+
+def guardar_vidas_extra_usuario(nombre_usuario: str, vidas_ganadas: int):
+    """
+    Guarda las vidas extra del usuario (acumulándolas con límite).
+    
+    Parámetros:
+        nombre_usuario (str): Nombre del usuario
+        vidas_ganadas (int): Vidas ganadas en esta partida
+    """
+    from data.repositorio_usuarios import obtener_vidas_extra, guardar_vidas_extra
+    from config.constantes import MAX_VIDAS_EXTRA, RUTA_ESTADO_BUFF
+    
+    # Obtener vidas actuales
+    vidas_actuales = obtener_vidas_extra(nombre_usuario, RUTA_ESTADO_BUFF)
+    
+    # Sumar las nuevas vidas
+    vidas_totales = vidas_actuales + vidas_ganadas
+    
+    # Aplicar límite máximo
+    if vidas_totales > MAX_VIDAS_EXTRA:
+        vidas_totales = MAX_VIDAS_EXTRA
+    
+    # Guardar
+    guardar_vidas_extra(nombre_usuario, vidas_totales, RUTA_ESTADO_BUFF)
+    
+    print(f"💚 {nombre_usuario}: Vidas ganadas +{vidas_ganadas} | Total acumulado: {vidas_totales}/{MAX_VIDAS_EXTRA}")
+
+
+def consumir_vidas_extra_usuario(nombre_usuario: str, vidas_usadas: int):
+    """
+    Consume vidas extra del usuario después de usarlas en una partida.
+    
+    Parámetros:
+        nombre_usuario (str): Nombre del usuario
+        vidas_usadas (int): Número de vidas que se usaron
+    """
+    from data.repositorio_usuarios import obtener_vidas_extra, guardar_vidas_extra
+    from config.constantes import RUTA_ESTADO_BUFF
+    
+    # Obtener vidas actuales
+    vidas_actuales = obtener_vidas_extra(nombre_usuario, RUTA_ESTADO_BUFF)
+    
+    # Restar las usadas
+    vidas_restantes = vidas_actuales - vidas_usadas
+    if vidas_restantes < 0:
+        vidas_restantes = 0
+    
+    # Guardar
+    guardar_vidas_extra(nombre_usuario, vidas_restantes, RUTA_ESTADO_BUFF)
+    
+    print(f"💔 {nombre_usuario}: Vidas usadas -{vidas_usadas} | Restantes: {vidas_restantes}")
+
+
+def calcular_errores_permitidos_con_vidas(nombre_usuario: str) -> int:
+    """
+    Calcula el total de errores permitidos incluyendo vidas extra.
+    
+    Parámetros:
+        nombre_usuario (str): Nombre del usuario
+    
+    Retorna:
+        int: Total de errores permitidos
+    """
+    from config.constantes import MAX_ERRORES_PERMITIDOS
+    
+    vidas_extra = obtener_vidas_extra_usuario(nombre_usuario)
+    total_errores = MAX_ERRORES_PERMITIDOS + vidas_extra
+    
+    return total_errores

@@ -2,5 +2,11 @@
   "daniel": {
     "objeto_excepcional": "espada"
   },
-  "Ara": {}
+  "Ara": {
+    "objeto_excepcional": "bolsa_monedas"
+  },
+  "ARa": {
+    "vidas_extra": 1,
+    "objeto_excepcional": "raciones"
+  }
 }

@@ -99,7 +99,7 @@ class Boton:
         
         # Dibujar texto centrado
         texto_render = self.fuente.render(self.texto, True, self.color_texto)
-        texto_rect = texto_render.get_rect(center=self.rect.center)
+        texto_rect = texto_render.get_rect(center=(self.rect.centerx, self.rect.centery - 10))
         
         # Si el botón está inactivo, hacer el texto más oscuro
         if not self.activo:

@@ -183,15 +183,34 @@ class gameOver(BaseEstado):
         total_preguntas = self.persist.get("total_preguntas", 0)
         nombre_jugador = self.persist.get("nombre_jugador", "Invitado")
         
+        # ⬅️ VIDAS GANADAS/USADAS
+        vidas_ganadas = self.persist.get("vidas_ganadas", 0)
+        vidas_usadas = self.persist.get("vidas_usadas", 0)
+        
         stats = [
             f"Jugador: {nombre_jugador}",
             f"Puntos: {puntos}",
             f"Respuestas correctas: {respuestas_correctas}/{total_preguntas}"
         ]
         
+        # ⬅️ AGREGAR INFO DE VIDAS
+        if vidas_usadas > 0:
+            stats.append(f"Vidas extra usadas: {vidas_usadas}")
+        
+        if vidas_ganadas > 0:
+            stats.append(f"Vidas extra ganadas: +{vidas_ganadas}")
+        
         y_offset = 250
         for stat in stats:
-            stat_render = self.fuente_stats.render(stat, True, self.color_texto)
+            # Color especial para vidas
+            if "ganadas" in stat:
+                color = (100, 255, 100)  # Verde
+            elif "usadas" in stat:
+                color = (255, 150, 150)  # Rojo claro
+            else:
+                color = self.color_texto
+            
+            stat_render = self.fuente_stats.render(stat, True, color)
             stat_rect = stat_render.get_rect(center=(self.screen_rect.centerx, y_offset))
             surface.blit(stat_render, stat_rect)
             y_offset += 50

@@ -8,7 +8,7 @@ import pygame
 from .base import BaseEstado
 from config.constantes import ALTO, ANCHO
 from ..Botones import Boton, BOTON_ALTO_PEQUENO, BOTON_ANCHO_PEQUENO
-from ..recursos import cargar_imagen, cargar_fuente_principal  # ⬅️ IMPORT AGREGADO
+from ..recursos import cargar_imagen, cargar_fuente_principal
 from ..efectos import dibujar_degradado_vertical, dibujar_sombra_texto
 from data.repositorio_preguntas import cargar_preguntas_desde_csv
 from core.logica_juego import (
@@ -47,7 +47,7 @@ class gameplay(BaseEstado):
         self.color_incorrecto = (255, 100, 100)
         self.color_buffeo = (255, 215, 0)
         
-        # ⬅️ FUENTES CON JACQUARD12
+        # Fuentes con Jacquard12
         self.fuente_titulo = cargar_fuente_principal(40)
         self.fuente_pregunta = cargar_fuente_principal(32)
         self.fuente_opcion = cargar_fuente_principal(28)
@@ -65,6 +65,10 @@ class gameplay(BaseEstado):
         self.racha_actual = 0
         self.errores = 0
         self.nombre_usuario = "Jugador"
+        
+        # ⬅️ VIDAS EXTRA
+        self.vidas_extra_iniciales = 0
+        self.max_errores_con_vidas = MAX_ERRORES_PERMITIDOS
         
         # Constante para conversión de índice a letra
         self.ASCII_A = 65
@@ -95,6 +99,14 @@ class gameplay(BaseEstado):
         
         # Obtener nombre del jugador
         self.nombre_usuario = self.persist.get("nombre_jugador", "Jugador")
+        
+        # ⬅️ CALCULAR ERRORES PERMITIDOS CON VIDAS EXTRA
+        from core.logica_buffeos import calcular_errores_permitidos_con_vidas, obtener_vidas_extra_usuario
+        
+        self.vidas_extra_iniciales = obtener_vidas_extra_usuario(self.nombre_usuario)
+        self.max_errores_con_vidas = calcular_errores_permitidos_con_vidas(self.nombre_usuario)
+        
+        print(f"🎮 Iniciando partida - Errores permitidos: {self.max_errores_con_vidas} (Base: {MAX_ERRORES_PERMITIDOS} + Extra: {self.vidas_extra_iniciales})")
         
         # Verificar objeto equipado al inicio
         objeto_equipado = verificar_objeto_equipado(self.nombre_usuario)
@@ -177,7 +189,7 @@ class gameplay(BaseEstado):
         self.botones_opciones = []
         opciones = self.pregunta_actual.get("opciones", [])
         
-        # ⬅️ TUS VALORES PERSONALIZADOS (NO MODIFICADOS)
+        # TUS VALORES PERSONALIZADOS (NO MODIFICADOS)
         y_start = 200
         espaciado = 100
         x_centrado = (self.screen_rect.width - BOTON_ANCHO_PEQUENO) // 2
@@ -249,17 +261,32 @@ class gameplay(BaseEstado):
         self.esperando_respuesta = False
         self.tiempo_resultado = 0
         
-        # Verificar condición de fin
-        if verificar_condicion_fin_partida(self.respuestas_partida):
+        # ⬅️ VERIFICAR CONDICIÓN DE FIN CON VIDAS EXTRA
+        if self.errores >= self.max_errores_con_vidas:
+            print(f"💀 Game Over - Errores: {self.errores}/{self.max_errores_con_vidas}")
             self.terminar_juego()
     
     def terminar_juego(self):
         """Termina el juego y pasa al estado Game Over o Selección de Objeto."""
+        from core.logica_buffeos import consumir_vidas_extra_usuario, calcular_vidas_ganadas, guardar_vidas_extra_usuario
+        
         # Contar respuestas correctas
         respuestas_correctas = sum(
             1 for r in self.respuestas_partida 
             if r.get("es_correcta", False)
         )
+        
+        # ⬅️ CONSUMIR VIDAS EXTRA USADAS
+        vidas_usadas = max(0, self.errores - MAX_ERRORES_PERMITIDOS)
+        if vidas_usadas > 0:
+            consumir_vidas_extra_usuario(self.nombre_usuario, vidas_usadas)
+            print(f"💔 Vidas extra consumidas: {vidas_usadas}")
+        
+        # ⬅️ CALCULAR VIDAS GANADAS
+        vidas_ganadas = calcular_vidas_ganadas(self.puntos_totales)
+        if vidas_ganadas > 0:
+            guardar_vidas_extra_usuario(self.nombre_usuario, vidas_ganadas)
+            print(f"💚 Vidas extra ganadas: {vidas_ganadas} (por {self.puntos_totales} puntos)")
         
         # Verificar si merece objeto especial
         total_preguntas = len(self.respuestas_partida)
@@ -273,6 +300,8 @@ class gameplay(BaseEstado):
         self.persist["puntos_totales"] = self.puntos_totales
         self.persist["respuestas_correctas"] = respuestas_correctas
         self.persist["total_preguntas"] = total_preguntas
+        self.persist["vidas_ganadas"] = vidas_ganadas  # ⬅️ NUEVO
+        self.persist["vidas_usadas"] = vidas_usadas    # ⬅️ NUEVO
         
         # Si merece objeto, ir a pantalla de selección
         if merece_objeto:
@@ -413,8 +442,15 @@ class gameplay(BaseEstado):
         racha_render = self.fuente_stats.render(racha_text, True, self.color_buffeo if self.buffeo_activo else self.color_texto)
         surface.blit(racha_render, (20, y))
         
-        # Errores
-        errores_text = f"Errores: {self.errores}/{MAX_ERRORES_PERMITIDOS}"
+        # ⬅️ ERRORES CON VIDAS EXTRA
+        errores_text = f"Errores: {self.errores}/{self.max_errores_con_vidas}"
+        
+        # Si tiene vidas extra, mostrar desglose
+        if self.vidas_extra_iniciales > 0:
+            vidas_usadas = max(0, self.errores - MAX_ERRORES_PERMITIDOS)
+            vidas_restantes = self.vidas_extra_iniciales - vidas_usadas
+            errores_text += f" (+{vidas_restantes} vidas)"
+        
         color_error = self.color_incorrecto if self.errores > 0 else self.color_texto
         errores_render = self.fuente_stats.render(errores_text, True, color_error)
         surface.blit(errores_render, (400, y))

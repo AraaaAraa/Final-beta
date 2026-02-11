@@ -144,3 +144,12 @@ ANCHO = 1000
 ALTO = 700
 FPS = 60
 BLANCO = (255, 255, 255) # Colores como tuplas [7]
+
+# =============================================================================
+# SISTEMA DE VIDAS EXTRA
+# =============================================================================
+# Descripción: Sistema de recompensa de vidas extra por puntos
+# =============================================================================
+
+PUNTOS_POR_VIDA_EXTRA = 30  # Cada 30 puntos = 1 vida extra
+MAX_VIDAS_EXTRA = 4  # Máximo de vidas extra acumulables (total: 2 base + 4 extra = 6)
