@@ -40,11 +40,40 @@ SegundoParcial/
 ├── ui/                            # 🖥️ Capa de presentación
 │   ├── __init__.py
 │   ├── interfaces.py             # Interfaces abstractas para UI
-│   └── consola/                  # Implementación consola
+│   ├── consola/                  # Implementación consola
+│   │   ├── __init__.py
+│   │   ├── menu_consola.py       # Menú principal consola
+│   │   ├── juego_consola.py      # Flujo de juego consola
+│   │   └── minijuego_consola.py  # Minijuego consola
+│   └── Pygame/                   # ⭐ Implementación Pygame
 │       ├── __init__.py
-│       ├── menu_consola.py       # Menú principal consola
-│       ├── juego_consola.py      # Flujo de juego consola
-│       └── minijuego_consola.py  # Minijuego consola
+│       ├── main.py               # Punto de entrada Pygame
+│       ├── Juego.py              # Máquina de estados
+│       ├── Botones.py            # Clase Boton original
+│       ├── recursos.py           # Carga de fuentes e imágenes
+│       ├── efectos.py            # Efectos visuales
+│       ├── componentes/          # ⭐ Componentes reutilizables
+│       │   ├── __init__.py
+│       │   └── boton.py          # Botón reutilizable con hover
+│       ├── utils/                # ⭐ Utilidades Pygame
+│       │   ├── __init__.py
+│       │   ├── renderizado.py    # Utilidades de renderizado
+│       │   └── eventos.py        # Utilidades de eventos
+│       └── Estados/              # Estados de la máquina
+│           ├── __init__.py
+│           ├── base.py           # Clase BaseEstado
+│           ├── Menu.py           # Estado de menú
+│           ├── Historia.py       # Estado de historia
+│           ├── Rankings.py       # Estado de rankings
+│           ├── Game_Over.py      # Estado de game over
+│           ├── Minijuego.py      # Estado de minijuego
+│           ├── SeleccionObjeto.py # Estado de selección
+│           └── Gameplay/         # ⭐ Gameplay modularizado
+│               ├── __init__.py
+│               ├── gameplay.py   # Orquestador principal
+│               ├── gestor_preguntas.py  # ⭐ Gestión de preguntas
+│               ├── gestor_respuestas.py # ⭐ Gestión de respuestas
+│               └── gestor_hud.py        # ⭐ Gestión de HUD
 │
 ├── utils/                         # 🛠️ Utilidades generales
 │   ├── __init__.py
@@ -258,6 +287,232 @@ def evaluar_respuesta(respuesta: str, opciones: list, correcta: str, usuario: st
     es_valido = validar_indice_opcion(indice, opciones)
     # ... resto de la lógica
 ```
+
+## Arquitectura Pygame Implementada
+
+### 🎮 Estructura Pygame
+
+La implementación de Pygame sigue el **patrón State Machine** (Máquina de Estados) con componentes reutilizables:
+
+```
+ui/Pygame/
+├── main.py                   # Punto de entrada, game loop
+├── Juego.py                  # Máquina de estados
+├── componentes/              # ⭐ Componentes reutilizables
+│   ├── boton.py             # Botón con hover y detección de clicks
+│   └── __init__.py
+├── utils/                    # ⭐ Utilidades de Pygame
+│   ├── renderizado.py       # Funciones de renderizado (texto, rectángulos)
+│   ├── eventos.py           # Funciones de manejo de eventos
+│   └── __init__.py
+└── Estados/                  # Estados del juego
+    ├── base.py              # BaseEstado (interfaz común)
+    ├── Menu.py              # Menú principal
+    ├── Historia.py          # Introducción narrativa
+    ├── Rankings.py          # Tabla de clasificación
+    ├── Game_Over.py         # Pantalla final
+    ├── Minijuego.py         # Minijuego de matriz
+    ├── SeleccionObjeto.py   # Selección de objeto especial
+    └── Gameplay/            # ⭐ Gameplay modularizado
+        ├── gameplay.py      # Orquestador principal
+        ├── gestor_preguntas.py   # Gestión de preguntas
+        ├── gestor_respuestas.py  # Gestión de respuestas
+        └── gestor_hud.py         # Gestión de HUD (puntos, racha)
+```
+
+### 🔄 Patrón State Machine
+
+**Concepto**: El juego está en uno de varios estados a la vez, cada uno con su propia lógica y renderizado.
+
+**Estados disponibles**:
+- `Menu`: Menú principal con opciones
+- `Historia`: Introducción narrativa del juego
+- `Gameplay`: Pantalla principal de juego (preguntas y respuestas)
+- `Minijuego`: Minijuego "Guardianes de Piedra"
+- `SeleccionObjeto`: Selección de objeto especial
+- `Rankings`: Tabla de puntajes
+- `Gameover`: Pantalla de fin de juego
+
+**Flujo de estados**:
+```
+Menu → Historia → Gameplay → [SeleccionObjeto | Gameover]
+  ↓                   ↓
+Rankings         Minijuego
+```
+
+### 🎯 Game Loop
+
+**Archivo**: `ui/Pygame/main.py`
+
+El game loop se ejecuta a 60 FPS y sigue el patrón clásico de juegos:
+
+```python
+while juego.corriendo:
+    # 1. PROCESAR EVENTOS (clicks, teclado, cerrar ventana)
+    for evento in pygame.event.get():
+        estado_actual.get_event(evento)
+    
+    # 2. ACTUALIZAR LÓGICA (mover objetos, calcular estado)
+    dt = reloj.tick(FPS)  # Delta time
+    estado_actual.update(dt)
+    
+    # 3. RENDERIZAR (dibujar todo en pantalla)
+    estado_actual.draw(pantalla)
+    pygame.display.flip()
+    
+    # 4. CAMBIAR ESTADO (si el actual terminó)
+    if estado_actual.done:
+        estado_actual = estados[estado_actual.sig_estado]
+```
+
+### 🧩 Componentes Reutilizables
+
+#### Boton (`ui/Pygame/componentes/boton.py`)
+
+**Propósito**: Componente reutilizable de botón con hover y detección de clicks.
+
+**Características**:
+- Imágenes de estado (normal/hover)
+- Detección automática de hover
+- Método `fue_clickeado()` para detección de clicks
+- Método `renderizar()` para dibujado
+
+**Uso**:
+```python
+from ui.Pygame.componentes import Boton
+
+boton = Boton(x=300, y=200, ancho=200, alto=60, 
+              texto="JUGAR", fuente=mi_fuente)
+
+# En game loop:
+boton.actualizar(pygame.mouse.get_pos())  # Actualizar hover
+boton.renderizar(pantalla)                # Dibujar
+
+# En eventos:
+if evento.type == pygame.MOUSEBUTTONDOWN:
+    if boton.fue_clickeado(evento.pos):
+        # Botón clickeado!
+```
+
+**Beneficio**: Evita duplicar código de botones en cada estado.
+
+#### Utilidades de Renderizado (`ui/Pygame/utils/renderizado.py`)
+
+Funciones reutilizables:
+- `renderizar_texto()`: Renderiza texto centrado en una posición
+- `renderizar_rectangulo_con_borde()`: Dibuja rectángulo con borde
+- `limpiar_pantalla()`: Limpia pantalla con color sólido
+
+**Beneficio**: Centraliza lógica de renderizado, evita repetición.
+
+#### Utilidades de Eventos (`ui/Pygame/utils/eventos.py`)
+
+Funciones reutilizables:
+- `detectar_click_en_botones()`: Detecta qué botón fue clickeado
+- `obtener_posicion_mouse()`: Wrapper de pygame.mouse.get_pos()
+
+**Beneficio**: Simplifica manejo de eventos.
+
+### 🎮 Gameplay Modularizado
+
+**Problema anterior**: `Gameplay.py` tenía ~612 líneas manejando todo.
+
+**Solución**: Separar responsabilidades en gestores especializados:
+
+#### GestorPreguntas (`gestor_preguntas.py`)
+
+**Responsabilidad**: Cargar, seleccionar y renderizar preguntas.
+
+**Funciones**:
+- `cargar_preguntas()`: Carga preguntas desde CSV
+- `siguiente_pregunta()`: Selecciona siguiente pregunta del nivel
+- `obtener_opciones()`: Devuelve opciones de la pregunta actual
+- `renderizar()`: Dibuja pregunta en pantalla
+
+**Delega a**: `core/logica_juego.py`, `data/repositorio_preguntas.py`
+
+#### GestorRespuestas (`gestor_respuestas.py`)
+
+**Responsabilidad**: Mostrar opciones, detectar clicks/teclado, procesar respuestas.
+
+**Funciones**:
+- `crear_botones_opciones()`: Crea botones para A, B, C, D
+- `actualizar_hover()`: Actualiza estado hover de botones
+- `detectar_click()`: Detecta qué opción fue clickeada
+- `procesar_respuesta()`: **Delega a core/** para calcular resultado
+- `renderizar()`: Dibuja botones en pantalla
+
+**Delega a**: `core/logica_juego.procesar_pregunta_completa()`
+
+#### GestorHUD (`gestor_hud.py`)
+
+**Responsabilidad**: Mostrar puntos, nivel, racha, errores, objetos equipados.
+
+**Funciones**:
+- `inicializar()`: Resetea estadísticas para nueva partida
+- `actualizar_puntos()`: Actualiza puntos totales
+- `actualizar_racha()`: Actualiza racha de aciertos
+- `incrementar_errores()`: Incrementa contador de errores
+- `renderizar()`: Dibuja HUD en pantalla
+
+**NO delega**: Solo renderiza, no calcula lógica.
+
+### 🔀 Separación UI/Lógica en Pygame
+
+**Regla de Oro**: Pygame SOLO muestra y detecta eventos. Core SOLO procesa lógica.
+
+**Ejemplo en Gameplay**:
+
+```python
+# ❌ MAL: Pygame calcula puntos
+puntos = pregunta.dificultad * 2 + racha
+
+# ✅ BIEN: Pygame delega a core
+resultado = procesar_pregunta_completa(
+    pregunta,
+    nombre_usuario,
+    racha_actual,
+    letra_respuesta,
+    intento_actual,
+    intentos_maximos
+)
+puntos = resultado.get("puntos", 0)
+racha_nueva = racha_actual + 1 if resultado["es_correcta"] else 0
+```
+
+**Beneficios**:
+1. **Testabilidad**: Core se puede probar sin Pygame
+2. **Reutilización**: Misma lógica para consola y Pygame
+3. **Mantenibilidad**: Cambiar cálculos sin tocar UI
+4. **Portabilidad**: Fácil migrar a otra librería gráfica
+
+### 📚 Guías de Defensa Creadas
+
+Para facilitar el estudio y defensa del código Pygame, se crearon 3 guías completas:
+
+1. **GUIA_DEFENSA_PYGAME.md** (~13KB)
+   - Conceptos fundamentales (máquina de estados, game loop)
+   - Patrones de diseño aplicados
+   - 10 preguntas frecuentes con respuestas preparadas
+   - Frases clave para impresionar
+   - Checklist de defensa
+
+2. **MAPA_DEPENDENCIAS_PYGAME.md** (~13KB)
+   - Flujo de ejecución completo
+   - Dependencias por capa
+   - Importaciones detalladas de cada archivo
+   - Diagrama visual de dependencias
+   - Análisis de dependencias circulares
+
+3. **ESTUDIO_RAPIDO_PYGAME.md** (~14KB)
+   - Cronograma de estudio de 1 hora
+   - Top 5 archivos críticos a conocer
+   - 10 frases clave memorizables
+   - Estrategia de defensa
+   - Checklist pre-defensa
+   - Planes de emergencia (30 min, 15 min)
+
+**Objetivo**: Estudiar y defender Pygame en 1 hora.
 
 ## Flujo de Ejecución
 
