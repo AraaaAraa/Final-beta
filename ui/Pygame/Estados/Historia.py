@@ -8,7 +8,7 @@ import pygame
 from .base import BaseEstado
 from ..Botones import Boton, crear_botones_centrados, BOTON_ALTO_PEQUENO, BOTON_ANCHO_PEQUENO
 from ..efectos import dibujar_degradado_vertical, dibujar_sombra_texto
-from ..recursos import cargar_imagen
+from ..recursos import cargar_imagen, cargar_fuente_principal  # ⬅️ IMPORT AGREGADO
 
 
 class historia(BaseEstado):
@@ -35,10 +35,10 @@ class historia(BaseEstado):
         self.color_input = (255, 215, 0)
         
         # Fuentes
-        self.fuente_texto = pygame.font.Font(None, 30)
-        self.fuente_boton = pygame.font.Font(None, 32)
-        self.fuente_indicacion = pygame.font.Font(None, 24)
-        self.fuente_input = pygame.font.Font(None, 40)
+        self.fuente_texto = cargar_fuente_principal(38)
+        self.fuente_boton = cargar_fuente_principal(32)
+        self.fuente_indicacion = cargar_fuente_principal(28)
+        self.fuente_input = cargar_fuente_principal(40)
         
         # Pantallas de la historia (separadas por bloques vacíos)
         self.pantallas = [

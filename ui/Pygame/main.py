@@ -19,10 +19,10 @@ from ui.Pygame.Estados.Game_Over import gameOver
 from ui.Pygame.Estados.Menu import menu
 from ui.Pygame.Estados.Gameplay import gameplay
 from ui.Pygame.Estados.Historia import historia
-from ui.Pygame.Estados.Splash import splash
+# ⬅️ ELIMINADO: from ui.Pygame.Estados.Splash import splash
 from ui.Pygame.Estados.Minijuego import minijuego
 from ui.Pygame.Estados.Rankings import rankings
-from ui.Pygame.Estados.SeleccionObjeto import seleccionObjeto  # ⬅️ NUEVO IMPORT
+from ui.Pygame.Estados.SeleccionObjeto import seleccionObjeto
 from config.constantes import ANCHO, ALTO, FPS
 from ui.Pygame.Juego import juego
 
@@ -39,10 +39,10 @@ estados = {
     "Gameplay": gameplay(),
     "Historia": historia(),
     "Gameover": gameOver(),
-    "Splash": splash(),
+    # ⬅️ ELIMINADO: "Splash": splash(),
     "Minijuego": minijuego(),
     "Rankings": rankings(),
-    "SeleccionObjeto": seleccionObjeto()  # ⬅️ NUEVO ESTADO
+    "SeleccionObjeto": seleccionObjeto()
 }
 
 # Inicia con Historia

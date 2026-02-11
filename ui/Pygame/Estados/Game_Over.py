@@ -8,7 +8,7 @@ import pygame
 from .base import BaseEstado
 from ..Botones import Boton, crear_botones_centrados
 from ..efectos import dibujar_degradado_vertical
-from ..recursos import cargar_imagen
+from ..recursos import cargar_imagen, cargar_fuente_principal
 from data.repositorio_usuarios import guardar_estadisticas_usuario
 from config.constantes import RUTA_USUARIOS
 
@@ -29,7 +29,7 @@ class gameOver(BaseEstado):
         
         # Cargar fondo
         ancho, alto = self.screen_rect.size
-        self.fondo = cargar_imagen("FondoDesertico.png", escalar=(ancho, alto))
+        self.fondo = cargar_imagen("Fondo_sangre.jpg", escalar=(ancho, alto))
         
         # Colores
         self.color_fondo_1 = (40, 20, 20)
@@ -37,9 +37,9 @@ class gameOver(BaseEstado):
         self.color_texto = (255, 255, 255)
         
         # Fuentes
-        self.fuente_titulo = pygame.font.Font(None, 80)
-        self.fuente_stats = pygame.font.Font(None, 36)
-        self.fuente_boton = pygame.font.Font(None, 32)
+        self.fuente_titulo = cargar_fuente_principal(80)
+        self.fuente_stats = cargar_fuente_principal(36)
+        self.fuente_boton = cargar_fuente_principal(32)
         
         # Botones usando helper
         centro_x = self.screen_rect.centerx

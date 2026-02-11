@@ -6,7 +6,7 @@
 
 import pygame
 from .base import BaseEstado
-from ..recursos import cargar_imagen
+from ..recursos import cargar_imagen, cargar_fuente_principal  
 from core.logica_buffeos import obtener_opciones_objetos, guardar_objeto_equipado
 from config.constantes import ALTO, ANCHO, OBJETOS_ESPECIALES
 
@@ -36,10 +36,10 @@ class seleccionObjeto(BaseEstado):
         self.color_borde_hover = (255, 215, 0)
         
         # Fuentes
-        self.fuente_titulo = pygame.font.Font(None, 60)
-        self.fuente_subtitulo = pygame.font.Font(None, 36)
-        self.fuente_objeto = pygame.font.Font(None, 32)
-        self.fuente_descripcion = pygame.font.Font(None, 22)
+        self.fuente_titulo = cargar_fuente_principal(60)
+        self.fuente_subtitulo = cargar_fuente_principal(36)
+        self.fuente_objeto = cargar_fuente_principal(32)
+        self.fuente_descripcion = cargar_fuente_principal(22)
         
         # Estado
         self.opciones = []

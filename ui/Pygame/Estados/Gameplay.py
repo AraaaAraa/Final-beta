@@ -8,7 +8,7 @@ import pygame
 from .base import BaseEstado
 from config.constantes import ALTO, ANCHO
 from ..Botones import Boton, BOTON_ALTO_PEQUENO, BOTON_ANCHO_PEQUENO
-from ..recursos import cargar_imagen
+from ..recursos import cargar_imagen, cargar_fuente_principal  # ⬅️ IMPORT AGREGADO
 from ..efectos import dibujar_degradado_vertical, dibujar_sombra_texto
 from data.repositorio_preguntas import cargar_preguntas_desde_csv
 from core.logica_juego import (
@@ -47,12 +47,12 @@ class gameplay(BaseEstado):
         self.color_incorrecto = (255, 100, 100)
         self.color_buffeo = (255, 215, 0)
         
-        # Fuentes
-        self.fuente_titulo = pygame.font.Font(None, 40)
-        self.fuente_pregunta = pygame.font.Font(None, 32)
-        self.fuente_opcion = pygame.font.Font(None, 28)
-        self.fuente_stats = pygame.font.Font(None, 30)
-        self.fuente_buffeo = pygame.font.Font(None, 24)
+        # ⬅️ FUENTES CON JACQUARD12
+        self.fuente_titulo = cargar_fuente_principal(40)
+        self.fuente_pregunta = cargar_fuente_principal(32)
+        self.fuente_opcion = cargar_fuente_principal(28)
+        self.fuente_stats = cargar_fuente_principal(30)
+        self.fuente_buffeo = cargar_fuente_principal(24)
         
         # Estado del juego
         self.preguntas = {}
@@ -96,7 +96,7 @@ class gameplay(BaseEstado):
         # Obtener nombre del jugador
         self.nombre_usuario = self.persist.get("nombre_jugador", "Jugador")
         
-        # ⬅️ VERIFICAR OBJETO EQUIPADO AL INICIO
+        # Verificar objeto equipado al inicio
         objeto_equipado = verificar_objeto_equipado(self.nombre_usuario)
         if objeto_equipado:
             print(f"🎮 Iniciando partida con objeto: {objeto_equipado}")
@@ -168,7 +168,7 @@ class gameplay(BaseEstado):
         self.datos_buffeo = calcular_datos_buffeo_para_ui(self.racha_actual, self.nombre_usuario)
         self.buffeo_activo = self.datos_buffeo.get("tiene_buffeo", False)
         
-        # ⬅️ DEBUG: Mostrar información del buffeo
+        # DEBUG: Mostrar información del buffeo
         if self.buffeo_activo:
             print(f"🔥 Buffeo activo - Racha: {self.racha_actual}, Puntos extra: {self.datos_buffeo.get('puntos_totales', 0)}")
     
@@ -177,6 +177,7 @@ class gameplay(BaseEstado):
         self.botones_opciones = []
         opciones = self.pregunta_actual.get("opciones", [])
         
+        # ⬅️ TUS VALORES PERSONALIZADOS (NO MODIFICADOS)
         y_start = 200
         espaciado = 100
         x_centrado = (self.screen_rect.width - BOTON_ANCHO_PEQUENO) // 2
@@ -210,7 +211,7 @@ class gameplay(BaseEstado):
         # Convertir índice a letra (A, B, C, D)
         letra_respuesta = chr(self.ASCII_A + indice_opcion)
         
-        # ⬅️ VERIFICAR OBJETO ANTES DE PROCESAR
+        # Verificar objeto antes de procesar
         objeto_equipado = verificar_objeto_equipado(self.nombre_usuario)
         print(f"📝 Procesando respuesta '{letra_respuesta}' - Objeto: {objeto_equipado}, Racha: {self.racha_actual}")
         
@@ -224,7 +225,7 @@ class gameplay(BaseEstado):
             determinar_intentos_maximos(self.nombre_usuario)
         )
         
-        # ⬅️ DEBUG: Mostrar puntos obtenidos
+        # DEBUG: Mostrar puntos obtenidos
         puntos_obtenidos = self.resultado_actual.get("puntos", 0)
         es_correcta = self.resultado_actual.get("es_correcta", False)
         print(f"✅ Resultado: {'Correcta' if es_correcta else 'Incorrecta'} - Puntos: {puntos_obtenidos}")
@@ -408,7 +409,7 @@ class gameplay(BaseEstado):
         # Racha (con indicador de buffeo)
         racha_text = f"Racha: {self.racha_actual}"
         if self.buffeo_activo:
-            racha_text += " 🔥"
+            racha_text += " (Fuego)"
         racha_render = self.fuente_stats.render(racha_text, True, self.color_buffeo if self.buffeo_activo else self.color_texto)
         surface.blit(racha_render, (20, y))
         
@@ -422,12 +423,12 @@ class gameplay(BaseEstado):
         objeto = verificar_objeto_equipado(self.nombre_usuario)
         if objeto:
             y += 35
-            # ⬅️ MAPEO DE NOMBRES DE OBJETOS PARA DISPLAY
+            # Mapeo de nombres de objetos para display
             nombres_objetos = {
-                "espada": "⚔️ Espada",
-                "armadura": "🛡️ Armadura",
-                "raciones": "🍖 Raciones",
-                "bolsa_monedas": "💰 Bolsa"
+                "espada": "Espada",
+                "armadura": "Armadura",
+                "raciones": "Raciones",
+                "bolsa_monedas": "Bolsa"
             }
             nombre_display = nombres_objetos.get(objeto, objeto.capitalize())
             objeto_text = f"Objeto: {nombre_display}"
@@ -453,7 +454,7 @@ class gameplay(BaseEstado):
         pygame.draw.rect(surface, self.color_buffeo, (x, y, 230, 80), 2)
         
         # Título
-        titulo_text = "🔥 BUFFEO ACTIVO!"
+        titulo_text = "BUFFEO ACTIVO!"
         titulo_render = self.fuente_buffeo.render(titulo_text, True, self.color_buffeo)
         surface.blit(titulo_render, (x + 10, y + 10))
         

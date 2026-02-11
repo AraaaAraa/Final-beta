@@ -8,7 +8,7 @@ import pygame
 from .base import BaseEstado
 from ..Botones import Boton, BOTON_ALTO_PEQUENO, BOTON_ANCHO_PEQUENO
 from ..efectos import dibujar_degradado_vertical, dibujar_sombra_texto
-from ..recursos import cargar_imagen
+from ..recursos import cargar_imagen, cargar_fuente_principal
 from data.repositorio_usuarios import obtener_usuario
 from data.archivos_json import cargar_json
 from config.constantes import RUTA_USUARIOS
@@ -42,10 +42,9 @@ class rankings(BaseEstado):
         self.color_fila_impar = (50, 60, 90)
         
         # Fuentes
-        self.fuente_titulo = pygame.font.Font(None, 70)
-        self.fuente_tab = pygame.font.Font(None, 36)  # ⬅️ Más grande
-        self.fuente_tabla = pygame.font.Font(None, 28)
-        self.fuente_boton = pygame.font.Font(None, 32)
+        self.fuente_titulo = cargar_fuente_principal(70)
+        self.fuente_ranking = cargar_fuente_principal(32)
+        self.fuente_boton = cargar_fuente_principal(40)
         
         # Tab actual
         self.tab_actual = "personal"  # "personal" o "global"

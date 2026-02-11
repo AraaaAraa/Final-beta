@@ -8,7 +8,7 @@ import pygame
 from .base import BaseEstado
 from ..Botones import Boton, crear_botones_centrados
 from ..efectos import dibujar_degradado_vertical
-from ..recursos import cargar_imagen
+from ..recursos import cargar_imagen, cargar_fuente_principal  # ⬅️ IMPORT AGREGADO
 
 
 class menu(BaseEstado):
@@ -33,9 +33,9 @@ class menu(BaseEstado):
         self.color_fondo_2 = (50, 30, 80)
         self.color_titulo = (255, 215, 0)
         
-        # Fuentes
-        self.fuente_titulo = pygame.font.Font(None, 80)
-        self.fuente_boton = pygame.font.Font(None, 48)
+        # ⬅️ FUENTES CON JACQUARD12
+        self.fuente_titulo = cargar_fuente_principal(80)
+        self.fuente_boton = cargar_fuente_principal(48)
         
         # Crear botones usando helper (SIN "Historia")
         centro_x = self.screen_rect.centerx

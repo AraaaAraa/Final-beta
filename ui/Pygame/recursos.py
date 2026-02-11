@@ -12,7 +12,10 @@ BASE_DIR = os.path.dirname(__file__)
 FONTS_DIR = os.path.join(BASE_DIR, "fonts")
 IMAGES_DIR = os.path.join(BASE_DIR, "imagenes")
 
-# ⬅️ CACHE GLOBAL DE IMÁGENES
+# ⬅️ FUENTE PRINCIPAL DEL JUEGO
+FUENTE_PRINCIPAL = "Jacquard12-Regular.ttf"  # ⬅️ Cambiar a .otf si es necesario
+
+# Cache global de imágenes
 _cache_imagenes = {}
 
 
@@ -35,6 +38,20 @@ def cargar_fuente(nombre: str, tamaño: int) -> pygame.font.Font:
         return pygame.font.Font(None, tamaño)
 
 
+# ⬅️ FUNCIÓN HELPER PARA CARGAR LA FUENTE PRINCIPAL
+def cargar_fuente_principal(tamaño: int) -> pygame.font.Font:
+    """
+    Carga la fuente principal del juego (Jacquard12-Regular).
+    
+    Parámetros:
+        tamaño (int): Tamaño de la fuente
+    
+    Retorna:
+        pygame.font.Font: Fuente principal cargada
+    """
+    return cargar_fuente(FUENTE_PRINCIPAL, tamaño)
+
+
 def cargar_imagen(nombre: str, escalar: tuple = None) -> pygame.Surface:
     """
     Carga una imagen desde el directorio de imágenes con cache.
@@ -49,9 +66,9 @@ def cargar_imagen(nombre: str, escalar: tuple = None) -> pygame.Surface:
     # Crear clave de cache única
     cache_key = f"{nombre}_{escalar}" if escalar else nombre
     
-    # ⬅️ VERIFICAR SI YA ESTÁ EN CACHE
+    # Verificar si ya está en cache
     if cache_key in _cache_imagenes:
-        return _cache_imagenes[cache_key].copy()  # Retornar copia para evitar modificaciones
+        return _cache_imagenes[cache_key].copy()
     
     ruta = os.path.join(IMAGES_DIR, nombre)
     if os.path.exists(ruta):
@@ -59,7 +76,7 @@ def cargar_imagen(nombre: str, escalar: tuple = None) -> pygame.Surface:
         if escalar:
             imagen = pygame.transform.scale(imagen, escalar)
         
-        # ⬅️ GUARDAR EN CACHE
+        # Guardar en cache
         _cache_imagenes[cache_key] = imagen
         return imagen.copy()
     else:
@@ -69,7 +86,7 @@ def cargar_imagen(nombre: str, escalar: tuple = None) -> pygame.Surface:
         img = pygame.Surface(tamaño)
         img.fill((255, 0, 255))
         
-        # ⬅️ GUARDAR PLACEHOLDER EN CACHE
+        # Guardar placeholder en cache
         _cache_imagenes[cache_key] = img
         return img.copy()
 
