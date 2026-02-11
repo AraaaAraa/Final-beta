@@ -26,7 +26,7 @@ class menu(BaseEstado):
         
         # Cargar fondo
         ancho, alto = self.screen_rect.size
-        self.fondo = cargar_imagen("FondoDesertico.png", escalar=(ancho, alto))
+        self.fondo = cargar_imagen("pared_egipcia.webp", escalar=(ancho, alto))
         
         # Colores
         self.color_fondo_1 = (20, 30, 50)

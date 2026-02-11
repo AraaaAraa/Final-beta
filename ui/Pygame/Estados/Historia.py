@@ -101,7 +101,7 @@ class historia(BaseEstado):
             20,
             BOTON_ANCHO_PEQUENO,
             BOTON_ALTO_PEQUENO,
-            pygame.font.Font(None, 28),
+            self.fuente_boton,
             (255, 255, 255)
         )
         

@@ -7,12 +7,11 @@
 import pygame
 from .base import BaseEstado
 from ..Botones import Boton, crear_botones_centrados
-from ..recursos import cargar_imagen, cargar_fuente_principal  # ⬅️ IMPORT AGREGADO
+from ..recursos import cargar_imagen, cargar_fuente_principal
 from core.logica_minijuego import (
-    iniciar_minijuego,
+    generar_matriz_resoluble,  # ⬅️ CAMBIADO
     obtener_movimientos_validos,
-    realizar_movimiento,
-    verificar_victoria
+    verificar_victoria  # ⬅️ ESTE SÍ EXISTE
 )
 from config.constantes import ANCHO, ALTO, TAMAÑO_MATRIZ_MINIJUEGO
 
@@ -44,15 +43,19 @@ class minijuego(BaseEstado):
         self.color_texto = (255, 255, 255)
         self.color_texto_celda = (0, 0, 0)
         
-        # ⬅️ FUENTES CON JACQUARD12
+        # Fuentes con Jacquard12
         self.fuente_titulo = cargar_fuente_principal(50)
         self.fuente_celda = cargar_fuente_principal(28)
         self.fuente_instrucciones = cargar_fuente_principal(24)
         self.fuente_boton = cargar_fuente_principal(32)
         
         # Estado del juego
-        self.estado_juego = None
+        self.matriz = None
+        self.pos_actual = (0, 0)
+        self.camino_recorrido = [(0, 0)]
         self.movimientos_validos = []
+        self.terminado = False
+        self.victoria = False
         self.tamano_celda = 80
         self.margen = 5
         
@@ -88,12 +91,24 @@ class minijuego(BaseEstado):
     
     def iniciar_nuevo_juego(self):
         """Inicia un nuevo juego del minijuego."""
-        self.estado_juego = iniciar_minijuego()
-        self.movimientos_validos = obtener_movimientos_validos(self.estado_juego)
+        # ⬅️ GENERAR MATRIZ
+        self.matriz = generar_matriz_resoluble(TAMAÑO_MATRIZ_MINIJUEGO)
+        self.pos_actual = (0, 0)
+        self.camino_recorrido = [(0, 0)]
+        self.terminado = False
+        self.victoria = False
         self.mostrar_derrota = False
         
+        # ⬅️ OBTENER MOVIMIENTOS VÁLIDOS (necesita matriz, pos, valor)
+        valor_actual = self.matriz[0][0]
+        self.movimientos_validos = obtener_movimientos_validos(
+            self.matriz, 
+            self.pos_actual, 
+            valor_actual
+        )
+        
         print("🎮 Minijuego iniciado")
-        print(f"📍 Posición inicial: {self.estado_juego['posicion_actual']}")
+        print(f"📍 Posición inicial: {self.pos_actual}")
     
     def get_event(self, event: pygame.event.Event):
         """
@@ -106,7 +121,7 @@ class minijuego(BaseEstado):
             self.quit = True
         
         # Si está en pantalla de victoria o derrota
-        if (self.estado_juego and self.estado_juego["terminado"]) or self.mostrar_derrota:
+        if self.terminado or self.mostrar_derrota:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 for boton in reversed(self.botones_resultado):
@@ -140,7 +155,7 @@ class minijuego(BaseEstado):
         Parámetros:
             pos (tuple): Posición (x, y) del clic
         """
-        if not self.estado_juego or self.estado_juego["terminado"]:
+        if self.terminado:
             return
         
         # Calcular posición de la matriz según el clic
@@ -161,16 +176,31 @@ class minijuego(BaseEstado):
         
         nueva_pos = (fila, col)
         
-        # Verificar si es un movimiento válido
-        if nueva_pos in self.movimientos_validos:
-            self.estado_juego = realizar_movimiento(self.estado_juego, nueva_pos)
+        # Verificar si es un movimiento válido (buscar en la lista)
+        es_valido = False
+        for mov in self.movimientos_validos:
+            if (mov[0], mov[1]) == nueva_pos:
+                es_valido = True
+                break
+        
+        if es_valido:
+            # Realizar movimiento
+            self.pos_actual = nueva_pos
+            self.camino_recorrido.append(nueva_pos)
             
-            # Verificar victoria
-            if verificar_victoria(self.estado_juego):
+            # ⬅️ VERIFICAR VICTORIA (recibe pos y tamaño)
+            if verificar_victoria(self.pos_actual, TAMAÑO_MATRIZ_MINIJUEGO):
                 print("🎉 ¡Victoria!")
+                self.terminado = True
+                self.victoria = True
             else:
                 # Actualizar movimientos válidos
-                self.movimientos_validos = obtener_movimientos_validos(self.estado_juego)
+                valor_actual = self.matriz[self.pos_actual[0]][self.pos_actual[1]]
+                self.movimientos_validos = obtener_movimientos_validos(
+                    self.matriz,
+                    self.pos_actual,
+                    valor_actual
+                )
                 
                 # Verificar si no hay movimientos (derrota)
                 if not self.movimientos_validos:
@@ -185,7 +215,7 @@ class minijuego(BaseEstado):
             dt (float): Delta time en milisegundos
         """
         # Actualizar hover de botones de resultado
-        if (self.estado_juego and self.estado_juego["terminado"]) or self.mostrar_derrota:
+        if self.terminado or self.mostrar_derrota:
             mouse_pos = pygame.mouse.get_pos()
             for boton in self.botones_resultado:
                 boton.hover = False
@@ -218,18 +248,18 @@ class minijuego(BaseEstado):
         surface.blit(titulo_render, titulo_rect)
         
         # Instrucciones
-        if not self.estado_juego or not self.estado_juego["terminado"]:
+        if not self.terminado:
             instruccion = "Muevete solo a casillas con valores MAYORES"
             inst_render = self.fuente_instrucciones.render(instruccion, True, self.color_texto)
             inst_rect = inst_render.get_rect(center=(self.screen_rect.centerx, 100))
             surface.blit(inst_render, inst_rect)
         
         # Dibujar matriz
-        if self.estado_juego:
+        if self.matriz:
             self.dibujar_matriz(surface)
         
         # Pantalla de victoria
-        if self.estado_juego and self.estado_juego["terminado"] and self.estado_juego["victoria"]:
+        if self.terminado and self.victoria:
             self.dibujar_resultado_victoria(surface)
         
         # Pantalla de derrota
@@ -238,12 +268,8 @@ class minijuego(BaseEstado):
     
     def dibujar_matriz(self, surface: pygame.Surface):
         """Dibuja la matriz del juego."""
-        if not self.estado_juego:
+        if not self.matriz:
             return
-        
-        matriz = self.estado_juego["matriz"]
-        pos_actual = self.estado_juego["posicion_actual"]
-        camino = self.estado_juego["camino_recorrido"]
         
         # Centrar la matriz
         inicio_x = (ANCHO - (self.tamano_celda * TAMAÑO_MATRIZ_MINIJUEGO + self.margen * (TAMAÑO_MATRIZ_MINIJUEGO - 1))) // 2
@@ -257,21 +283,25 @@ class minijuego(BaseEstado):
                 pos = (fila, col)
                 
                 # Determinar color de la celda
-                if pos == pos_actual:
+                if pos == self.pos_actual:
                     color = self.color_celda_actual
-                elif pos in camino:
+                elif pos in self.camino_recorrido:
                     color = self.color_celda_visitada
-                elif pos in self.movimientos_validos:
-                    color = self.color_celda_valida
                 else:
-                    color = self.color_celda
+                    # Verificar si es movimiento válido
+                    es_valido = False
+                    for mov in self.movimientos_validos:
+                        if (mov[0], mov[1]) == pos:
+                            es_valido = True
+                            break
+                    color = self.color_celda_valida if es_valido else self.color_celda
                 
                 # Dibujar celda
                 pygame.draw.rect(surface, color, (x, y, self.tamano_celda, self.tamano_celda))
                 pygame.draw.rect(surface, (255, 255, 255), (x, y, self.tamano_celda, self.tamano_celda), 2)
                 
                 # Dibujar valor
-                valor = str(matriz[fila][col])
+                valor = str(self.matriz[fila][col])
                 valor_render = self.fuente_celda.render(valor, True, self.color_texto_celda)
                 valor_rect = valor_render.get_rect(center=(x + self.tamano_celda // 2, y + self.tamano_celda // 2))
                 surface.blit(valor_render, valor_rect)

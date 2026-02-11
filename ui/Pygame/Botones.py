@@ -160,8 +160,7 @@ def crear_boton_menu(texto: str, centro_x: int, indice: int, fuente: pygame.font
     return Boton(texto, x, y, ancho, alto, fuente, BOTON_COLOR_TEXTO)
 
 
-def crear_botones_centrados(textos: list, centro_x: int, fuente: pygame.font.Font,
-                            tamano: str = "pequeno", y_inicial: int = None) -> list:
+def crear_botones_centrados(textos: list, centro_x: int, fuente: pygame.font.Font,tamano: str = "pequeno", y_inicial: int = None) -> list:
     """
     Crea múltiples botones centrados verticalmente.
     

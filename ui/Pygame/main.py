@@ -19,7 +19,6 @@ from ui.Pygame.Estados.Game_Over import gameOver
 from ui.Pygame.Estados.Menu import menu
 from ui.Pygame.Estados.Gameplay import gameplay
 from ui.Pygame.Estados.Historia import historia
-# ⬅️ ELIMINADO: from ui.Pygame.Estados.Splash import splash
 from ui.Pygame.Estados.Minijuego import minijuego
 from ui.Pygame.Estados.Rankings import rankings
 from ui.Pygame.Estados.SeleccionObjeto import seleccionObjeto
