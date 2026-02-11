@@ -1,7 +1,25 @@
 # =============================================================================
 # ARCHIVOS JSON - OPERACIONES GENÉRICAS
 # =============================================================================
-# Módulo para operaciones de lectura/escritura de archivos JSON
+# 📄 DESCRIPCIÓN:
+#    Módulo de utilidades para operaciones de lectura/escritura de archivos JSON.
+#    Proporciona funciones genéricas para cargar, guardar y verificar archivos.
+#
+# 📥 IMPORTADO EN:
+#    - data/repositorio_usuarios.py (línea 7) - para cargar_json, guardar_json, verificar_archivo_existe
+#    - data/repositorio_preguntas.py (línea 8) - para verificar_y_obtener_ruta
+#    - core/logica_buffeos.py - para cargar/guardar estado de buffs
+#
+# 🔗 DEPENDENCIAS:
+#    - os: para operaciones de archivos y directorios
+#    - json: para serialización/deserialización de datos
+#
+# 💡 NOTAS PARA LA DEFENSA:
+#    - Centraliza operaciones de I/O para reducir código duplicado
+#    - Manejo robusto de errores con try/except
+#    - Creación automática de directorios si no existen
+#    - Encoding UTF-8 para soportar caracteres especiales
+#    - Separación de responsabilidades: este módulo solo maneja archivos
 # =============================================================================
 
 import os
@@ -10,20 +28,28 @@ import json
 # =============================================================================
 # VERIFICAR_ARCHIVO_EXISTE
 # =============================================================================
-# Descripción: Verifica si un archivo existe en el sistema
+# 📄 Descripción: 
+#    Verifica si un archivo existe en el sistema de archivos
 # 
-# Uso en Pygame: Se usa igual para validar archivos de datos
+# 📥 Parámetros:
+#    - archivo (str): Ruta del archivo a verificar
+#    - mensaje_error (str, opcional): Mensaje a mostrar si no existe
 #
-# Parámetros:
-#   - archivo (str): Ruta del archivo a verificar
-#   - mensaje_error (str): Mensaje a mostrar si no existe (vacío para no mostrar)
+# 📤 Retorna:
+#    - bool: True si el archivo existe, False en caso contrario
 #
-# Retorna:
-#   - bool: True si el archivo existe, False en caso contrario
+# 🔧 Importado en:
+#    - data/repositorio_usuarios.py (línea 33) - para validar archivo de usuarios
+#    - data/archivos_json.py (línea 121) - para verificar_y_obtener_ruta
 #
-# Ejemplo de uso:
-#   if verificar_archivo_existe("datos.json", ""):
-#       # cargar datos
+# 💡 Algoritmo:
+#    - Paso 1: Usar os.path.exists para verificar existencia
+#    - Paso 2: Si no existe y hay mensaje_error, imprimirlo
+#    - Paso 3: Retornar resultado booleano (un solo return)
+#
+# 📝 Ejemplo de uso:
+#    if verificar_archivo_existe("datos.json", "Archivo no encontrado"):
+#        # cargar datos
 # =============================================================================
 def verificar_archivo_existe(archivo: str, mensaje_error: str = "") -> bool:
     """Verifica si un archivo existe en el sistema."""
@@ -37,19 +63,27 @@ def verificar_archivo_existe(archivo: str, mensaje_error: str = "") -> bool:
 # =============================================================================
 # CARGAR_JSON
 # =============================================================================
-# Descripción: Carga datos desde un archivo JSON
+# 📄 Descripción: 
+#    Carga datos desde un archivo JSON con manejo de errores
 # 
-# Uso en Pygame: Se usa igual para cargar datos guardados
+# 📥 Parámetros:
+#    - archivo (str): Ruta del archivo JSON
+#    - default: Valor por defecto si el archivo no existe o hay error
 #
-# Parámetros:
-#   - archivo (str): Ruta del archivo JSON
-#   - default: Valor por defecto si el archivo no existe o hay error
+# 📤 Retorna:
+#    - dict/list: Datos cargados o valor por defecto
 #
-# Retorna:
-#   - dict/list: Datos cargados o valor por defecto
+# 🔧 Importado en:
+#    - data/repositorio_usuarios.py (líneas 36, 75, 181) - para cargar usuarios
+#    - core/logica_buffeos.py - para cargar estado de buffs
 #
-# Ejemplo de uso:
-#   datos = cargar_json("usuarios.json", {})
+# 💡 Algoritmo:
+#    - Paso 1: Abrir archivo con encoding UTF-8
+#    - Paso 2: Usar json.load para deserializar
+#    - Paso 3: En caso de error, retornar default (un solo return con try/except)
+#
+# 📝 Ejemplo de uso:
+#    datos = cargar_json("usuarios.json", {})
 # =============================================================================
 def cargar_json(archivo: str, default=None):
     """Carga datos desde un archivo JSON."""
@@ -65,19 +99,28 @@ def cargar_json(archivo: str, default=None):
 # =============================================================================
 # GUARDAR_JSON
 # =============================================================================
-# Descripción: Guarda datos en un archivo JSON
+# 📄 Descripción: 
+#    Guarda datos en un archivo JSON con formato legible
 # 
-# Uso en Pygame: Se usa igual para persistir datos
+# 📥 Parámetros:
+#    - archivo (str): Ruta del archivo JSON
+#    - datos: Datos a guardar (dict o list)
 #
-# Parámetros:
-#   - archivo (str): Ruta del archivo JSON
-#   - datos: Datos a guardar (dict o list)
+# 📤 Retorna:
+#    - bool: True si se guardó correctamente, False en caso de error
 #
-# Retorna:
-#   - bool: True si se guardó correctamente
+# 🔧 Importado en:
+#    - data/repositorio_usuarios.py (línea 80) - para guardar estadísticas
+#    - core/logica_buffeos.py - para guardar estado de buffs
 #
-# Ejemplo de uso:
-#   guardar_json("usuarios.json", datos_usuarios)
+# 💡 Algoritmo:
+#    - Paso 1: Crear directorio padre si no existe (os.makedirs)
+#    - Paso 2: Abrir archivo con encoding UTF-8
+#    - Paso 3: Usar json.dump con indent=2 para formato legible
+#    - Paso 4: Retornar True si éxito, False si hay excepción (un solo return)
+#
+# 📝 Ejemplo de uso:
+#    guardar_json("usuarios.json", datos_usuarios)
 # =============================================================================
 def guardar_json(archivo: str, datos) -> bool:
     """Guarda datos en un archivo JSON."""

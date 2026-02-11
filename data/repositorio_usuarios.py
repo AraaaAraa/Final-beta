@@ -1,7 +1,28 @@
 # =============================================================================
 # REPOSITORIO DE USUARIOS
 # =============================================================================
-# Módulo para gestionar operaciones CRUD de usuarios
+# 📄 DESCRIPCIÓN:
+#    Módulo para gestionar operaciones CRUD (Crear, Leer, Actualizar) de usuarios.
+#    Maneja persistencia de estadísticas, rankings y objetos equipados.
+#
+# 📥 IMPORTADO EN:
+#    - core/logica_juego.py (línea 12) - para guardar_estadisticas_usuario
+#    - ui/consola/menu_consola.py - para obtener_usuario, obtener_ranking
+#    - ui/Pygame/Estados/Game_Over.py - para guardar_estadisticas_usuario
+#    - ui/Pygame/Estados/Rankings.py - para obtener_ranking
+#    - ui/Pygame/Estados/SeleccionObjeto.py - para guardar_objeto_equipado
+#
+# 🔗 DEPENDENCIAS:
+#    - data/archivos_json: para operaciones de lectura/escritura JSON
+#    - models/usuario: para crear_usuario_nuevo, actualizar_estadisticas_usuario
+#    - utils/algoritmos: para calcular_estadisticas_lista
+#    - config/constantes: para RUTA_USUARIOS, RUTA_ESTADO_BUFF
+#
+# 💡 NOTAS PARA LA DEFENSA:
+#    - Patrón Repository para separar lógica de persistencia de lógica de negocio
+#    - Búsqueda manual de usuarios sin usar .get() para cumplir principios
+#    - Ordenamiento manual del ranking con insertion sort
+#    - Sistema de vidas extra y objetos equipados para gameplay mejorado
 # =============================================================================
 
 from data.archivos_json import cargar_json, guardar_json, verificar_archivo_existe
