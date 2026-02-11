@@ -1,7 +1,29 @@
 # =============================================================================
 # LÓGICA PRINCIPAL DEL JUEGO
 # =============================================================================
-# Orquesta el flujo del juego sin dependencias de UI
+# 📄 DESCRIPCIÓN:
+#    Orquesta el flujo principal del juego sin dependencias de UI.
+#    Procesa preguntas, gestiona niveles, calcula estadísticas y coordina
+#    la interacción entre todos los módulos de lógica (preguntas, buffeos, puntaje).
+#
+# 📥 IMPORTADO EN:
+#    - ui/consola/juego_consola.py - para ejecutar juego en modo consola
+#    - ui/Pygame/Estados/Gameplay.py (líneas 14-19) - para ejecutar juego en modo gráfico
+#
+# 🔗 DEPENDENCIAS:
+#    - data/repositorio_preguntas: para cargar_preguntas_desde_csv, filtrar_preguntas_por_nivel, seleccionar_pregunta_aleatoria
+#    - data/repositorio_usuarios: para guardar_estadisticas_usuario
+#    - core/logica_preguntas: para evaluar_respuesta, construir_resultado_respuesta, calcular_racha_actual, determinar_intentos_maximos, contar_errores_totales
+#    - core/logica_buffeos: para calcular_puntos_buffeo, puede_usar_reintento, usar_raciones, usar_bolsa_monedas, verificar_merecimiento_objeto, verificar_objeto_equipado
+#    - core/logica_puntaje: para calcular_puntos_base
+#    - config.constantes: para PREGUNTAS_POR_NIVEL, MAX_ERRORES_PERMITIDOS, RUTA_PREGUNTAS, RUTA_USUARIOS
+#
+# 💡 NOTAS PARA LA DEFENSA:
+#    - Patrón Facade: simplifica interacción con múltiples subsistemas
+#    - Funciones que retornan datos, UI decide cómo mostrarlos
+#    - Sin prints ni inputs, toda comunicación por retorno de valores
+#    - Coordina lógica de preguntas, buffeos y puntajes
+#    - UN SOLO return por función en todas las funciones
 # =============================================================================
 
 from data.repositorio_preguntas import (

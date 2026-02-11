@@ -1,7 +1,24 @@
 # =============================================================================
 # LÓGICA DEL MINIJUEGO
 # =============================================================================
-# Lógica del minijuego "Guardianes de Piedra" sin UI
+# 📄 DESCRIPCIÓN:
+#    Lógica del minijuego "Guardianes de Piedra" sin dependencias de UI.
+#    Genera matrices resolubles, valida movimientos y determina victoria.
+#
+# 📥 IMPORTADO EN:
+#    - ui/consola/minijuego_consola.py - para jugar en modo consola
+#    - ui/Pygame/Estados/Minijuego.py - para jugar en modo gráfico
+#
+# 🔗 DEPENDENCIAS:
+#    - random: para generar caminos aleatorios
+#    - config.constantes: para TAMAÑO_MATRIZ_MINIJUEGO
+#
+# 💡 NOTAS PARA LA DEFENSA:
+#    - Generación garantizada de matriz resoluble usando algoritmo recursivo
+#    - Validación de movimientos sin usar funciones built-in
+#    - Separación total entre lógica del juego y presentación
+#    - Algoritmo recursivo para generar camino (técnica avanzada)
+#    - UN SOLO return por función
 # =============================================================================
 
 import random

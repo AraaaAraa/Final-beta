@@ -1,7 +1,25 @@
 # =============================================================================
 # LÓGICA DE PREGUNTAS
 # =============================================================================
-# Maneja la lógica de selección y evaluación de preguntas
+# 📄 DESCRIPCIÓN:
+#    Maneja la evaluación de respuestas, construcción de resultados y
+#    cálculo de rachas. Separa la lógica de validación de la presentación.
+#
+# 📥 IMPORTADO EN:
+#    - core/logica_juego.py (líneas 13-18) - para evaluar_respuesta, construir_resultado_respuesta, calcular_racha_actual, determinar_intentos_maximos, contar_errores_totales
+#    - ui/Pygame/Estados/Gameplay.py (línea 21) - para calcular_racha_actual, determinar_intentos_maximos
+#
+# 🔗 DEPENDENCIAS:
+#    - utils/formateadores: para obtener_indice_letra, quitar_espacios_extremos, convertir_a_mayusculas
+#    - utils/validaciones: para validar_indice_opcion
+#    - core/logica_buffeos: para verificar_objeto_equipado, usar_armadura
+#
+# 💡 NOTAS PARA LA DEFENSA:
+#    - Evaluación de respuestas sin efectos secundarios (sin prints)
+#    - Integración con sistema de objetos (armadura protege respuestas)
+#    - Cálculo manual de rachas con bucle while (sin usar funciones built-in)
+#    - Mensajes personalizados por nivel para mejor experiencia
+#    - UN SOLO return por función en todas las funciones
 # =============================================================================
 
 from utils.formateadores import obtener_indice_letra, quitar_espacios_extremos, convertir_a_mayusculas

@@ -1,7 +1,27 @@
 # =============================================================================
 # LÓGICA DE BUFFEOS Y OBJETOS ESPECIALES
 # =============================================================================
-# Maneja todo el sistema de buffeos y objetos especiales sin UI
+# 📄 DESCRIPCIÓN:
+#    Maneja el sistema completo de buffeos, rachas y objetos especiales.
+#    Incluye lógica para espada, armadura, raciones y bolsa de monedas.
+#    Gestiona persistencia de objetos equipados sin dependencias de UI.
+#
+# 📥 IMPORTADO EN:
+#    - core/logica_juego.py (líneas 20-26) - para calcular_puntos_buffeo, puede_usar_reintento, usar_raciones, usar_bolsa_monedas, verificar_merecimiento_objeto, verificar_objeto_equipado
+#    - core/logica_preguntas.py (línea 9) - para verificar_objeto_equipado, usar_armadura
+#    - ui/Pygame/Estados/Gameplay.py (línea 22) - para verificar_objeto_equipado, verificar_merecimiento_objeto
+#    - ui/Pygame/Estados/SeleccionObjeto.py - para obtener_opciones_objetos, guardar_objeto_equipado
+#
+# 🔗 DEPENDENCIAS:
+#    - data/archivos_json: para cargar_json, guardar_json
+#    - config.constantes: para RUTA_ESTADO_BUFF, PUNTOS_BUFFEO_POR_RACHA, OBJETOS_ESPECIALES, RESPUESTAS_CORRECTAS_PARA_OBJETO, TOTAL_PREGUNTAS_PARA_OBJETO
+#
+# 💡 NOTAS PARA LA DEFENSA:
+#    - Sistema complejo de gameplay sin mezclar con UI
+#    - Objetos consumibles (armadura, raciones, bolsa) vs permanentes (espada)
+#    - Persistencia de estado en JSON separado de estadísticas
+#    - Lógica de rachas y buffeos configurable desde constantes
+#    - UN SOLO return por función en todas las funciones
 # =============================================================================
 
 from data.archivos_json import cargar_json, guardar_json
