@@ -5,11 +5,9 @@ from pathlib import Path
 # ============================================
 # CONFIGURACIÓN DE PATHS PARA IMPORTS
 # ============================================
-# Obtener la ruta raíz del proyecto (2 niveles arriba de este archivo)
 ruta_actual = Path(__file__).resolve()
 ruta_proyecto = ruta_actual.parent.parent.parent
 
-# Agregar la raíz del proyecto al path de Python
 if str(ruta_proyecto) not in sys.path:
     sys.path.insert(0, str(ruta_proyecto))
 
@@ -23,17 +21,16 @@ from ui.Pygame.Estados.Gameplay import gameplay
 from ui.Pygame.Estados.Historia import historia
 from ui.Pygame.Estados.Splash import splash
 from ui.Pygame.Estados.Minijuego import minijuego
-from ui.Pygame.Estados.Rankings import rankings  # NUEVO
+from ui.Pygame.Estados.Rankings import rankings
+from ui.Pygame.Estados.SeleccionObjeto import seleccionObjeto  # ⬅️ NUEVO IMPORT
 from config.constantes import ANCHO, ALTO, FPS
 from ui.Pygame.Juego import juego
 
 # ============================================
 # INICIALIZACIÓN Y EJECUCIÓN
 # ============================================
-# Initialize all imported pygame modules
 pygame.init()
 
-# Create the window surface
 pantalla = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("Trivia Mitológica")
 
@@ -44,7 +41,8 @@ estados = {
     "Gameover": gameOver(),
     "Splash": splash(),
     "Minijuego": minijuego(),
-    "Rankings": rankings()  # NUEVO
+    "Rankings": rankings(),
+    "SeleccionObjeto": seleccionObjeto()  # ⬅️ NUEVO ESTADO
 }
 
 # Inicia con Historia

@@ -19,7 +19,7 @@ from core.logica_juego import (
     verificar_condicion_fin_partida
 )
 from core.logica_preguntas import calcular_racha_actual, determinar_intentos_maximos
-from core.logica_buffeos import verificar_objeto_equipado  # ⬅️ NUEVO IMPORT
+from core.logica_buffeos import verificar_objeto_equipado, verificar_merecimiento_objeto
 from config.constantes import RUTA_PREGUNTAS, PREGUNTAS_POR_NIVEL, MAX_ERRORES_PERMITIDOS
 
 
@@ -52,7 +52,7 @@ class gameplay(BaseEstado):
         self.fuente_pregunta = pygame.font.Font(None, 32)
         self.fuente_opcion = pygame.font.Font(None, 28)
         self.fuente_stats = pygame.font.Font(None, 30)
-        self.fuente_buffeo = pygame.font.Font(None, 24)  # ⬅️ NUEVA FUENTE PARA BUFFEO
+        self.fuente_buffeo = pygame.font.Font(None, 24)
         
         # Estado del juego
         self.preguntas = {}
@@ -76,7 +76,7 @@ class gameplay(BaseEstado):
         self.resultado_actual = None
         self.tiempo_resultado = 0
         
-        # ⬅️ ESTADO DE BUFFEO
+        # Estado de buffeo
         self.buffeo_activo = False
         self.datos_buffeo = None
         
@@ -144,7 +144,7 @@ class gameplay(BaseEstado):
         self.preguntas_usadas.append(self.pregunta_actual.get("id", 0))
         self.numero_pregunta_nivel += 1
         
-        # ⬅️ ACTUALIZAR BUFFEO ANTES DE MOSTRAR LA PREGUNTA
+        # Actualizar buffeo antes de mostrar la pregunta
         self.actualizar_buffeo()
         
         # Crear botones de opciones
@@ -217,7 +217,7 @@ class gameplay(BaseEstado):
             self.racha_actual = 0
             self.errores += 1
         
-        # ⬅️ ACTUALIZAR BUFFEO DESPUÉS DE RESPONDER
+        # Actualizar buffeo después de responder
         self.actualizar_buffeo()
         
         # Guardar respuesta
@@ -233,19 +233,33 @@ class gameplay(BaseEstado):
             self.terminar_juego()
     
     def terminar_juego(self):
-        """Termina el juego y pasa al estado Game Over."""
+        """Termina el juego y pasa al estado Game Over o Selección de Objeto."""
         # Contar respuestas correctas
         respuestas_correctas = sum(
             1 for r in self.respuestas_partida 
             if r.get("es_correcta", False)
         )
         
+        # Verificar si merece objeto especial
+        total_preguntas = len(self.respuestas_partida)
+        merece_objeto = verificar_merecimiento_objeto(
+            self.nombre_usuario, 
+            respuestas_correctas, 
+            total_preguntas
+        )
+        
         # Pasar estadísticas al siguiente estado
         self.persist["puntos_totales"] = self.puntos_totales
         self.persist["respuestas_correctas"] = respuestas_correctas
-        self.persist["total_preguntas"] = len(self.respuestas_partida)
+        self.persist["total_preguntas"] = total_preguntas
         
-        self.sig_estado = "Gameover"
+        # Si merece objeto, ir a pantalla de selección
+        if merece_objeto:
+            print(f"🌟 ¡{self.nombre_usuario} merece un objeto especial!")
+            self.sig_estado = "SeleccionObjeto"
+        else:
+            self.sig_estado = "Gameover"
+        
         self.done = True
     
     def get_event(self, event: pygame.event.Event):
@@ -337,7 +351,7 @@ class gameplay(BaseEstado):
         # Encabezado con estadísticas
         self.dibujar_stats(surface)
         
-        # ⬅️ MOSTRAR BUFFEO SI ESTÁ ACTIVO
+        # Mostrar buffeo si está activo
         if self.buffeo_activo and self.datos_buffeo and self.esperando_respuesta:
             self.dibujar_buffeo(surface)
         
@@ -373,7 +387,7 @@ class gameplay(BaseEstado):
         # Racha (con indicador de buffeo)
         racha_text = f"Racha: {self.racha_actual}"
         if self.buffeo_activo:
-            racha_text += " 🔥"  # Indicador visual de buffeo activo
+            racha_text += " 🔥"
         racha_render = self.fuente_stats.render(racha_text, True, self.color_buffeo if self.buffeo_activo else self.color_texto)
         surface.blit(racha_render, (20, y))
         
@@ -383,7 +397,7 @@ class gameplay(BaseEstado):
         errores_render = self.fuente_stats.render(errores_text, True, color_error)
         surface.blit(errores_render, (400, y))
         
-        # ⬅️ MOSTRAR OBJETO EQUIPADO
+        # Mostrar objeto equipado
         objeto = verificar_objeto_equipado(self.nombre_usuario)
         if objeto:
             y += 35
@@ -417,7 +431,6 @@ class gameplay(BaseEstado):
         # Detalles del buffeo
         puntos_racha = self.datos_buffeo.get("puntos_racha", 0)
         puntos_objeto = self.datos_buffeo.get("puntos_objeto", 0)
-        puntos_totales = self.datos_buffeo.get("puntos_totales", 0)
         
         y_offset = y + 35
         
@@ -489,7 +502,7 @@ class gameplay(BaseEstado):
             surface.blit(texto_render, texto_rect)
             y_offset += 50
         
-        # ⬅️ DESGLOSE DE PUNTOS (incluyendo buffeo)
+        # Desglose de puntos (incluyendo buffeo)
         if self.resultado_actual.get("es_correcta", False):
             puntos_totales = self.resultado_actual.get("puntos", 0)
             puntos_base = self.resultado_actual.get("puntos_base", puntos_totales)
