@@ -449,8 +449,7 @@ class gameplay(BaseEstado):
         
         # Racha (con indicador de buffeo)
         racha_text = f"Racha: {self.racha_actual}"
-        if self.buffeo_activo:
-            racha_text += " (Fuego)"
+        
         racha_render = self.fuente_stats.render(racha_text, True, self.color_buffeo if self.buffeo_activo else self.color_texto)
         surface.blit(racha_render, (20, y))
         
@@ -490,7 +489,7 @@ class gameplay(BaseEstado):
         
         # Posición en la esquina superior derecha
         x = ANCHO - 250
-        y = 100
+        y = 50
         
         # Fondo semi-transparente para el buffeo
         buffeo_bg = pygame.Surface((230, 80))

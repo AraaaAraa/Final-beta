@@ -301,3 +301,89 @@ def guardar_vidas_extra(nombre_usuario: str, vidas_extra: int, ruta_archivo: str
         json.dump(datos, archivo, indent=2, ensure_ascii=False)
     
     print(f"💾 Vidas extra guardadas para {nombre_usuario}: {vidas_extra}")
+
+# =============================================================================
+# FUNCIONES PARA OBJETOS EQUIPADOS
+# =============================================================================
+
+def obtener_objeto_equipado(nombre_usuario: str, ruta_archivo: str = RUTA_ESTADO_BUFF):
+    """
+    Obtiene el objeto equipado del usuario desde EstadoBuff.json.
+    
+    Parámetros:
+        nombre_usuario (str): Nombre del usuario
+        ruta_archivo (str): Ruta del archivo EstadoBuff.json
+    
+    Retorna:
+        str o None: Tipo de objeto equipado o None si no tiene
+    """
+    import json
+    from pathlib import Path
+    
+    ruta = Path(ruta_archivo)
+    
+    if not ruta.exists():
+        return None
+    
+    try:
+        with open(ruta, 'r', encoding='utf-8') as archivo:
+            datos = json.load(archivo)
+            
+            if nombre_usuario in datos:
+                usuario_data = datos[nombre_usuario]
+                return usuario_data.get("objeto_excepcional", None)
+            
+            return None
+    except:
+        return None
+
+
+def guardar_objeto_equipado(nombre_usuario: str, tipo_objeto: str = None, vidas_extra: int = None, ruta_archivo: str = RUTA_ESTADO_BUFF):
+    """
+    Guarda el objeto equipado del usuario en EstadoBuff.json.
+    
+    Parámetros:
+        nombre_usuario (str): Nombre del usuario
+        tipo_objeto (str): Tipo de objeto ("espada", "armadura", etc.) o None para eliminar
+        vidas_extra (int): Vidas extra a guardar (opcional)
+        ruta_archivo (str): Ruta del archivo EstadoBuff.json
+    """
+    import json
+    from pathlib import Path
+    
+    ruta = Path(ruta_archivo)
+    
+    # Cargar datos existentes
+    if ruta.exists():
+        try:
+            with open(ruta, 'r', encoding='utf-8') as archivo:
+                datos = json.load(archivo)
+        except:
+            datos = {}
+    else:
+        datos = {}
+    
+    # Crear entrada del usuario si no existe
+    if nombre_usuario not in datos:
+        datos[nombre_usuario] = {}
+    
+    # Actualizar objeto
+    if tipo_objeto is None:
+        # Eliminar el objeto
+        if "objeto_excepcional" in datos[nombre_usuario]:
+            del datos[nombre_usuario]["objeto_excepcional"]
+    else:
+        datos[nombre_usuario]["objeto_excepcional"] = tipo_objeto
+    
+    # Actualizar vidas si se especificaron
+    if vidas_extra is not None:
+        datos[nombre_usuario]["vidas_extra"] = vidas_extra
+    
+    # Guardar
+    with open(ruta, 'w', encoding='utf-8') as archivo:
+        json.dump(datos, archivo, indent=2, ensure_ascii=False)
+    
+    if tipo_objeto:
+        print(f"💾 Objeto '{tipo_objeto}' equipado para {nombre_usuario}")
+    else:
+        print(f"💾 Objeto eliminado para {nombre_usuario}")

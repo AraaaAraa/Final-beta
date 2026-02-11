@@ -548,10 +548,13 @@ def consumir_objeto_equipado(nombre_usuario: str):
     Parámetros:
         nombre_usuario (str): Nombre del usuario
     """
-    from data.repositorio_usuarios import guardar_objeto_equipado
+    from data.repositorio_usuarios import guardar_objeto_equipado, obtener_vidas_extra
     from config.constantes import RUTA_ESTADO_BUFF
     
-    # Guardar None como objeto (eliminarlo)
-    guardar_objeto_equipado(nombre_usuario, None)
+    # Obtener vidas actuales para no perderlas
+    vidas_actuales = obtener_vidas_extra(nombre_usuario, RUTA_ESTADO_BUFF)
+    
+    # Guardar None como objeto (eliminarlo), manteniendo las vidas
+    guardar_objeto_equipado(nombre_usuario, None, vidas_actuales, RUTA_ESTADO_BUFF)
     
     print(f"⚔️ Objeto consumido para {nombre_usuario}")

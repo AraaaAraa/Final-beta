@@ -54,7 +54,7 @@ class rankings(BaseEstado):
             centro_x,
             self.fuente_boton,
             tamano="grande",
-            y_inicial=600
+            y_inicial=570
         )
         
         self.boton_volver = botones_lista[0]
@@ -141,8 +141,7 @@ class rankings(BaseEstado):
         surface.blit(ranking_bg, (ranking_bg_x, ranking_bg_y))
         
         # Borde del fondo
-        pygame.draw.rect(surface, self.color_titulo, 
-                        (ranking_bg_x, ranking_bg_y, ranking_bg_width, ranking_bg_height), 3)
+        pygame.draw.rect(surface, self.color_titulo, (ranking_bg_x, ranking_bg_y, ranking_bg_width, ranking_bg_height), 3)
         
         # Mostrar ranking
         if self.ranking_data:
