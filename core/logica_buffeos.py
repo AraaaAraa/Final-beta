@@ -540,3 +540,18 @@ def calcular_errores_permitidos_con_vidas(nombre_usuario: str) -> int:
     total_errores = MAX_ERRORES_PERMITIDOS + vidas_extra
     
     return total_errores
+
+def consumir_objeto_equipado(nombre_usuario: str):
+    """
+    Consume/elimina el objeto equipado del usuario después de usarlo.
+    
+    Parámetros:
+        nombre_usuario (str): Nombre del usuario
+    """
+    from data.repositorio_usuarios import guardar_objeto_equipado
+    from config.constantes import RUTA_ESTADO_BUFF
+    
+    # Guardar None como objeto (eliminarlo)
+    guardar_objeto_equipado(nombre_usuario, None)
+    
+    print(f"⚔️ Objeto consumido para {nombre_usuario}")

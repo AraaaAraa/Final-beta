@@ -268,7 +268,13 @@ class gameplay(BaseEstado):
     
     def terminar_juego(self):
         """Termina el juego y pasa al estado Game Over o Selección de Objeto."""
-        from core.logica_buffeos import consumir_vidas_extra_usuario, calcular_vidas_ganadas, guardar_vidas_extra_usuario
+        from core.logica_buffeos import (
+            consumir_vidas_extra_usuario, 
+            calcular_vidas_ganadas, 
+            guardar_vidas_extra_usuario,
+            consumir_objeto_equipado,  # ⬅️ NUEVO
+            verificar_objeto_equipado
+        )
         
         # Contar respuestas correctas
         respuestas_correctas = sum(
@@ -276,13 +282,19 @@ class gameplay(BaseEstado):
             if r.get("es_correcta", False)
         )
         
-        # ⬅️ CONSUMIR VIDAS EXTRA USADAS
+        # ⬅️ CONSUMIR OBJETO EQUIPADO SI TENÍA UNO
+        objeto_usado = verificar_objeto_equipado(self.nombre_usuario)
+        if objeto_usado:
+            consumir_objeto_equipado(self.nombre_usuario)
+            print(f"⚔️ Objeto '{objeto_usado}' consumido al terminar partida")
+        
+        # CONSUMIR VIDAS EXTRA USADAS
         vidas_usadas = max(0, self.errores - MAX_ERRORES_PERMITIDOS)
         if vidas_usadas > 0:
             consumir_vidas_extra_usuario(self.nombre_usuario, vidas_usadas)
             print(f"💔 Vidas extra consumidas: {vidas_usadas}")
         
-        # ⬅️ CALCULAR VIDAS GANADAS
+        # CALCULAR VIDAS GANADAS
         vidas_ganadas = calcular_vidas_ganadas(self.puntos_totales)
         if vidas_ganadas > 0:
             guardar_vidas_extra_usuario(self.nombre_usuario, vidas_ganadas)
@@ -300,8 +312,8 @@ class gameplay(BaseEstado):
         self.persist["puntos_totales"] = self.puntos_totales
         self.persist["respuestas_correctas"] = respuestas_correctas
         self.persist["total_preguntas"] = total_preguntas
-        self.persist["vidas_ganadas"] = vidas_ganadas  # ⬅️ NUEVO
-        self.persist["vidas_usadas"] = vidas_usadas    # ⬅️ NUEVO
+        self.persist["vidas_ganadas"] = vidas_ganadas
+        self.persist["vidas_usadas"] = vidas_usadas
         
         # Si merece objeto, ir a pantalla de selección
         if merece_objeto:
