@@ -1,8 +1,21 @@
 # =============================================================================
 # MAIN - PUNTO DE ENTRADA
 # =============================================================================
-# Punto de entrada mínimo del programa
-# Toda la lógica está en los módulos correspondientes
+# 📄 DESCRIPCIÓN:
+#    Punto de entrada mínimo del programa. Delega toda la lógica a los
+#    módulos correspondientes manteniendo este archivo simple y limpio.
+#
+# 📥 IMPORTADO EN:
+#    - Ejecutado directamente como script principal
+#
+# 🔗 DEPENDENCIAS:
+#    - ui/consola/menu_consola: para ejecutar_menu_consola
+#
+# 💡 NOTAS PARA LA DEFENSA:
+#    - Punto de entrada simple que delega responsabilidades
+#    - Facilita cambiar entre UI de consola y pygame
+#    - Toda la lógica está en módulos especializados
+#    - Patrón común en aplicaciones bien estructuradas
 # =============================================================================
 
 from ui.consola.menu_consola import ejecutar_menu_consola

@@ -1,7 +1,21 @@
 # =============================================================================
 # LÓGICA DE PUNTAJE
 # =============================================================================
-# Maneja todo el cálculo de puntajes sin dependencias de UI
+# 📄 DESCRIPCIÓN:
+#    Maneja el cálculo de puntajes base y totales del juego.
+#    Separa la lógica de puntuación de la presentación (UI).
+#
+# 📥 IMPORTADO EN:
+#    - core/logica_juego.py (línea 28) - para calcular_puntos_base
+#
+# 🔗 DEPENDENCIAS:
+#    - config.constantes: para PUNTOS_POR_DIFICULTAD
+#
+# 💡 NOTAS PARA LA DEFENSA:
+#    - Lógica pura sin dependencias de UI
+#    - Búsqueda manual de puntos por dificultad (sin .get())
+#    - Separación clara: este módulo calcula, UI muestra
+#    - UN SOLO return por función
 # =============================================================================
 
 from config.constantes import PUNTOS_POR_DIFICULTAD

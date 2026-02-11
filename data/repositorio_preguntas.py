@@ -1,7 +1,27 @@
 # =============================================================================
 # REPOSITORIO DE PREGUNTAS
 # =============================================================================
-# Módulo para cargar y gestionar las preguntas del juego
+# 📄 DESCRIPCIÓN:
+#    Módulo para cargar y gestionar las preguntas del juego desde archivo CSV.
+#    Incluye filtrado por nivel, selección aleatoria y mezclado de opciones.
+#
+# 📥 IMPORTADO EN:
+#    - core/logica_juego.py (líneas 7-10) - para cargar_preguntas_desde_csv, filtrar_preguntas_por_nivel, seleccionar_pregunta_aleatoria
+#    - ui/Pygame/Estados/Gameplay.py (línea 13) - para cargar_preguntas_desde_csv
+#    - ui/consola/juego_consola.py - para cargar preguntas en UI de consola
+#
+# 🔗 DEPENDENCIAS:
+#    - random: para selección aleatoria y mezcla de opciones
+#    - data/archivos_json: para verificar_y_obtener_ruta
+#    - models/pregunta: para crear_pregunta
+#    - config/constantes: para RUTA_PREGUNTAS
+#
+# 💡 NOTAS PARA LA DEFENSA:
+#    - Carga de CSV implementada manualmente (sin pandas)
+#    - Algoritmo Fisher-Yates manual para mezclar opciones
+#    - Filtrado manual de preguntas sin usar filter()
+#    - Selección aleatoria por categoría para variedad
+#    - Búsqueda manual de preguntas usadas sin usar 'in'
 # =============================================================================
 
 import random

@@ -1,7 +1,23 @@
 # =============================================================================
 # MODELO: PARTIDA
 # =============================================================================
-# Representa el estado completo de una partida en curso
+# 📄 DESCRIPCIÓN:
+#    Modelo que representa el estado completo de una partida en curso.
+#    Mantiene información de jugador, nivel, respuestas, puntos, tiempo
+#    y estadísticas en tiempo real.
+#
+# 📥 IMPORTADO EN:
+#    - ui/Pygame/Estados/Gameplay.py - para gestionar estado de partida en UI gráfica
+#    - ui/consola/juego_consola.py - para gestionar estado en UI de consola
+#
+# 🔗 DEPENDENCIAS:
+#    - time: para calcular tiempo transcurrido de la partida
+#
+# 💡 NOTAS PARA LA DEFENSA:
+#    - Estructura centralizada del estado de la partida
+#    - Separación entre modelo de datos y presentación (UI)
+#    - Cálculo manual de estadísticas sin usar funciones built-in prohibidas
+#    - Uso de time.time() para tracking temporal preciso
 # =============================================================================
 
 import time

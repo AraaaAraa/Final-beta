@@ -1,8 +1,24 @@
 # =============================================================================
 # ALGORITMOS MANUALES
 # =============================================================================
-# Implementaciones manuales de algoritmos comunes
-# (sin usar funciones built-in como sum, max, min, etc.)
+# 📄 DESCRIPCIÓN:
+#    Implementaciones manuales de algoritmos comunes de listas y estadísticas.
+#    Reemplaza funciones built-in como sum(), max(), min(), enumerate()
+#    con implementaciones usando bucles explícitos.
+#
+# 📥 IMPORTADO EN:
+#    - data/repositorio_usuarios.py (línea 9) - para calcular_estadisticas_lista
+#    - ui/consola/menu_consola.py - para operaciones con listas de estadísticas
+#
+# 🔗 DEPENDENCIAS:
+#    Ninguna (algoritmos puros)
+#
+# 💡 NOTAS PARA LA DEFENSA:
+#    - Demuestra comprensión profunda de algoritmos fundamentales
+#    - Todos los algoritmos usan bucles while o for explícitos
+#    - UN SOLO return por función (usamos variables de control)
+#    - No se usan funciones built-in prohibidas (sum, max, min, filter, etc.)
+#    - Útiles para explicar complejidad algorítmica O(n)
 # =============================================================================
 
 # =============================================================================
