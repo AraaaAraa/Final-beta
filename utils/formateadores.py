@@ -1,7 +1,23 @@
 # =============================================================================
 # FORMATEADORES DE TEXTO
 # =============================================================================
-# Funciones para formatear y transformar texto
+# 📄 DESCRIPCIÓN:
+#    Funciones para formatear y transformar texto.
+#    Implementaciones manuales de operaciones de string sin usar métodos built-in.
+#
+# 📥 IMPORTADO EN:
+#    - core/logica_preguntas.py (línea 7) - para obtener_indice_letra, quitar_espacios_extremos, convertir_a_mayusculas
+#    - ui/consola/juego_consola.py - para formatear inputs y salidas
+#
+# 🔗 DEPENDENCIAS:
+#    - config.constantes: para LETRAS_OPCIONES
+#
+# 💡 NOTAS PARA LA DEFENSA:
+#    - Implementación manual de .strip() con quitar_espacios_extremos
+#    - Implementación manual de .upper() con convertir_a_mayusculas
+#    - Búsqueda manual carácter por carácter con bucles while
+#    - UN SOLO return por función
+#    - Demuestra comprensión de manipulación de strings a bajo nivel
 # =============================================================================
 
 from config.constantes import LETRAS_OPCIONES

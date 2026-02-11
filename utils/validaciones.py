@@ -1,7 +1,22 @@
 # =============================================================================
 # VALIDACIONES
 # =============================================================================
-# Funciones para validar datos y entradas del usuario
+# 📄 DESCRIPCIÓN:
+#    Funciones para validar datos y entradas del usuario.
+#    Verifica rangos, formatos y valores permitidos.
+#
+# 📥 IMPORTADO EN:
+#    - core/logica_preguntas.py (línea 8) - para validar_indice_opcion
+#    - ui/consola/menu_consola.py - para validar_nombre_usuario
+#
+# 🔗 DEPENDENCIAS:
+#    Ninguna (validaciones puras)
+#
+# 💡 NOTAS PARA LA DEFENSA:
+#    - Validaciones explícitas para evitar errores en runtime
+#    - Retornos booleanos simples y claros
+#    - Validación manual sin usar funciones built-in prohibidas
+#    - UN SOLO return por función
 # =============================================================================
 
 # =============================================================================
